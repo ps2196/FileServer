@@ -5,7 +5,7 @@
 #define MAX_FDS 20
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 
-#define DEFAULT_PORT 3338
+#define DEFAULT_PORT 3333
 #define BACKLOG_SIZE 5 //maximum nuber of waiting connections, used in listen
 
 int main(int argc, char **argv)
@@ -13,10 +13,12 @@ int main(int argc, char **argv)
     int sock;
     socklen_t length;
     struct sockaddr_in server;
-    fd_set ready;
+    fd_set ready, write_ready;
     struct timeval to;
     int msgsock = -1, nfds, nactive;
     int socktab[MAX_FDS]; // oddzielne gniazdo dla kazdego polaczenia
+
+    Connection connections[MAX_FDS];
     
     char buf[1024];
     int rval = 0, i;
@@ -55,14 +57,16 @@ int main(int argc, char **argv)
 
     do
     {
-        FD_ZERO(&ready);
+        FD_ZERO(&ready); FD_ZERO(&write_ready);
         FD_SET(sock, &ready);
         for (i = 0; i < MAX_FDS; i++) /* dodaj aktywne do zbioru */
-            if (socktab[i] > 0)
-                FD_SET(socktab[i], &ready);
+        {    
+            connections[i].setReadReady();
+            connections[i].setWriteReady();
+        }
         to.tv_sec = 5;
         to.tv_usec = 0;
-        if ((nactive = select(nfds, &ready, (fd_set *)0, (fd_set *)0, &to)) == -1)
+        if ((nactive = select(nfds, &ready, &write_ready, (fd_set *)0, &to)) == -1)
         {
             perror("select");
             continue;
@@ -74,42 +78,33 @@ int main(int argc, char **argv)
             if (msgsock == -1)
                 perror("accept");
             nfds = max(nfds, msgsock + 1); /* brak sprawdzenia czy msgsock>MAX_FDS */
-            socktab[msgsock] = msgsock;
+            connections[msgsock] = Connection(msgsock, nullptr, &ready, &write_ready);
             printf("accepted...(MAX_FDS = %d)\n", MAX_FDS);
         }
         for (i = 0; i < MAX_FDS; i++)
         {
-            if ((msgsock = socktab[i]) > 0 && FD_ISSET(socktab[i], &ready))
+            if (connections[i].isReadReady())
             {
-                memset(buf, 0, sizeof buf);
-                if ((rval = read(msgsock, buf, READ_SIZE)) == -1)
-                    perror("reading stream message");
+                rval = connections[i].reciveMsg();
                 if (rval == 0)
                 {
                     printf("Ending connection\n");
-                    close(msgsock);
+                    connections[i].closeConnection();
                     socktab[msgsock] = -1;
                 }
                 else
                 {
-                    printf("- %2d ->%s\n", msgsock, buf);
-                    if(buf[rval-1] == '\0')
+                    //printf("- %2d ->%s\n", msgsock, connections[i].getRequest().c_str());
+                    if(connections[i].isRequsetComplete())
                     {
-                        printf("Sending response...");
-                        const char* response  = "Gdzie pieniadze sa za las!!!";
-                        int sent = 0;
-                        while(sent < 29)
-                        {
-                            int chunk_size = send(msgsock, response, 29, 0);
-                            if ( chunk_size < 0)
-                                perror("Send");
-                            else {
-                                sent += chunk_size;
-                            }
-                        }                   
+                        connections[i].parseRequest();
                     }
-                    sleep(1);
+                    //sleep(1);
                 }
+            }
+            if(connections[i].isWriteReady() && connections[i].responsePending())
+            {
+                connections[i].sendResponse();
             }
         }
         if (nactive == 0)

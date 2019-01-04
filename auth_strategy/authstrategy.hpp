@@ -20,6 +20,8 @@ class AuthStrategy
   
     AuthStrategy(string& user_file): user_file(user_file)
     {}
+    AuthStrategy(const char* user_file): user_file(user_file)
+    {}
 
     // Returns line from user file describing given user
     const string getUserLine(string& username)
@@ -28,6 +30,7 @@ class AuthStrategy
       string line;
       while(std::getline(uf, line))
       {
+        std::cout << "FIND line: " << line << std::endl;
         descVect userDesc = splitWithDelimiter(line, ':');
         if(userDesc.size() < 4)
           continue;
@@ -35,13 +38,16 @@ class AuthStrategy
           return line;
       }
       uf.close();
-      return string();
+      return "";
     }
 
     // Check given credentials against credentials stored in user file
     User* auth(string& username, string& password)
     {
        string line = getUserLine(username);
+       std::cout << "AUTH line: "<<line<<std::endl;
+       if(line == "")
+         return nullptr;
        descVect userDesc = splitWithDelimiter(line, ':');
        // line returned by getUserLine is at least size 4 after split
        if(userDesc[1] != password)
