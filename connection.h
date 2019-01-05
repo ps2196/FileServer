@@ -1,3 +1,6 @@
+#ifndef CONNECTION_H
+#define CONNECTION_H
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -8,7 +11,6 @@
 #include <string>
 #include <stdio.h>
 #include "auth_strategy/user.hpp"
-#include "requestparser.h"
 
 //
 // Connection provides intrface for user connection handling
@@ -20,7 +22,7 @@ class Connection
     using string = std:: string;
   private:
     int socket; // socket used for communication with user
-    User *user;
+    User *user; // nullptr when user is not authorized
     fd_set* read_fdset;
     fd_set* write_fdset;
     char buf[512];
@@ -64,7 +66,12 @@ class Connection
     void setSocket(int socket){this->socket = socket;} 
     string getRequest() const { return request;}
     string getResponse() const { return response;}
-    void setResponse(string res) {this->response = res;}
+    void setResponse(string res) 
+    {
+        this->response = res;
+        if( response != "")
+            response_pending = true;
+    }
     bool isRequsetComplete() const {return req_complete;}
     bool responsePending() const {return response_pending;}
         
@@ -73,6 +80,7 @@ class Connection
     int reciveMsg()
     {   int rval=0;
         memset(buf, 0, sizeof buf);
+        req_complete = false;
         if ((rval = read(socket, buf, READ_SIZE)) == -1)
             perror("reading stream message");
         else if (rval > 0)
@@ -124,12 +132,6 @@ class Connection
         req_complete = false;
         response_pending = false;
     }
-
-    // Parse request and set response
-    void parseRequest()
-    {
-        response  = RequestParser::parseRequest(request);
-        response_pending=true;
-        req_complete = false; 
-    }
 };
+
+#endif //CONNECTION_H

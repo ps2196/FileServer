@@ -1,4 +1,7 @@
 #include "connection.h"
+#include "auth_strategy/authstrategy.hpp"
+#include "requestparser.h"
+#include "requestengine.hpp"
 
 #define TRUE 1
 #define READ_SIZE 20
@@ -18,7 +21,13 @@ int main(int argc, char **argv)
     int msgsock = -1, nfds, nactive;
     int socktab[MAX_FDS]; // oddzielne gniazdo dla kazdego polaczenia
 
+
+    AuthStrategy auth = AuthStrategy("auth/users.auth");
+    RequestEngine engine = RequestEngine("data", "auth");
+    RequestParser parser = RequestParser(&engine, &auth);
+
     Connection connections[MAX_FDS];
+
     
     char buf[1024];
     int rval = 0, i;
@@ -97,7 +106,7 @@ int main(int argc, char **argv)
                     //printf("- %2d ->%s\n", msgsock, connections[i].getRequest().c_str());
                     if(connections[i].isRequsetComplete())
                     {
-                        connections[i].parseRequest();
+                        parser.parseRequest(&connections[i]);
                     }
                     //sleep(1);
                 }

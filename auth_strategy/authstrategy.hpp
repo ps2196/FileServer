@@ -1,3 +1,6 @@
+#ifndef AUTHSTRATEGY_H
+#define AUTHSTRATEGY_H
+
 #include "../utils/StringSplitter.h"
 #include <fstream>
 #include "user.hpp"
@@ -30,7 +33,7 @@ class AuthStrategy
       string line;
       while(std::getline(uf, line))
       {
-        std::cout << "FIND line: " << line << std::endl;
+        std::cout << "FIND line: " << line << std::endl; //Debug
         descVect userDesc = splitWithDelimiter(line, ':');
         if(userDesc.size() < 4)
           continue;
@@ -45,7 +48,7 @@ class AuthStrategy
     User* auth(string& username, string& password)
     {
        string line = getUserLine(username);
-       std::cout << "AUTH line: "<<line<<std::endl;
+       std::cout << "AUTH line: "<<line<<std::endl; //Debug
        if(line == "")
          return nullptr;
        descVect userDesc = splitWithDelimiter(line, ':');
@@ -56,3 +59,5 @@ class AuthStrategy
        return new User(userDesc[0], userDesc[1], stoi(userDesc[2]), stoi(userDesc[3]));
     }
 };
+
+#endif //AUTHSTRATEGY_H
