@@ -4,9 +4,8 @@
 #include <string>
 #include "../utils/json.hpp"
 
-class User
+struct User
 {
-  private:
     using string = std::string;
     using json = nlohmann::json;
 
@@ -17,7 +16,6 @@ class User
     float publicUsed;
     float privateUsed;
 
-  public:
     User(string &name, string &pass, int pubLimit, int privLimit, float pubUsed, float privUsed) :
       username(name),
       password(pass),
