@@ -8,7 +8,7 @@
 //
 // AuthStrategy provides interface for user authorisation
 // Credentials are saved in a text file formatted in the following way:
-// username : password : total_disk_space : public_catalog_size  
+// username : password : public_catalog_size_limit : private_catalog_size_limit : public_space_used : private_space_used
 //
 class AuthStrategy
 {
@@ -18,9 +18,9 @@ class AuthStrategy
 
   private:
     string user_file;
-  
+
   public:
-  
+
     AuthStrategy(string& user_file): user_file(user_file)
     {}
     AuthStrategy(const char* user_file): user_file(user_file)
@@ -55,8 +55,9 @@ class AuthStrategy
        // line returned by getUserLine is at least size 4 after split
        if(userDesc[1] != password)
          return nullptr;
-       
-       return new User(userDesc[0], userDesc[1], stoi(userDesc[2]), stoi(userDesc[3]));
+
+       // User(name, pass, pubLimit, privLimit, pubUsed, privUsed)
+       return new User(userDesc[0], userDesc[1], stoi(userDesc[2]), stoi(userDesc[3]), stof(userDesc[4]), stof(userDesc[5]));
     }
 };
 
