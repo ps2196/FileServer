@@ -2,6 +2,7 @@
 #define REQPARER_H
 
 #include <string>
+#include <iostream>
 #include <vector>
 #include "utils/json.hpp"
 #include "auth_strategy/authstrategy.hpp"
@@ -30,6 +31,11 @@ class RequestParser
         try
         {
             json req = json::parse(conn->getRequest());
+            string command = req["command"];
+            string type = req["type"];
+
+            printf("%s %s\n", type.c_str(), command.c_str());
+
             if(req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
                 return RESPONSE_BAD_REQUEST;
 
@@ -53,6 +59,7 @@ class RequestParser
                     conn->setUser(user);
                     json res_json;
                     res_json["type"] = "RESPONSE";
+                    res_json["command"] = cmd;
                     res_json["code"] = 200;
                     res_json["data"] = user->toJson();
                     return res_json.dump();
@@ -61,6 +68,40 @@ class RequestParser
             else if( cmd == "TOUCH")
             { // chec if authorized and call engine method
 
+            }
+            else if (cmd == "CREATEUSER")
+            {
+              // TODO: wywalic to potem do request engine
+              User *user = conn->getUser();
+              if (user != nullptr && user->username == "root")
+              {
+                // TODO: sprawdzac czy username zajęty. czy to po stronie klienta robic??
+
+                string username = req["username"];
+                string password = req["password"];
+                string publicLimit = req["public"];
+                string privateLimit = req["private"];
+                string publicUsed = "0";
+                string privateUsed = "0";
+
+                User *newUser = new User(username, password,
+                  std::atoi(publicLimit.c_str()),
+                  std::atoi(privateLimit.c_str()),
+                  std::atof(publicUsed.c_str()),
+                  std::atof(privateUsed.c_str()));
+
+                json respone;
+                respone["type"] = "RESPONSE";
+                respone["command"] = cmd;
+                respone["code"] = 201; // ok, created
+                respone["data"] = newUser->toJson();
+
+                return respone.dump();
+              }
+              else
+              {
+                return RESPONSE_UNAUTHORIZED;
+              }
             }
         }
         catch (json::parse_error)
