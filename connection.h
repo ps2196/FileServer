@@ -18,7 +18,7 @@
 class Connection
 {
   public:
-    static const int READ_SIZE = 256; 
+    static const int READ_SIZE = 256;
     using string = std:: string;
   private:
     int socket; // socket used for communication with user
@@ -63,10 +63,11 @@ class Connection
     User* getUser() const {return user;}
     void setUser(User* user ){this->user = user;}
     int getSocket() const{return socket;}
-    void setSocket(int socket){this->socket = socket;} 
+    void setSocket(int socket){this->socket = socket;}
     string getRequest() const { return request;}
+    void resetRequest() { request = "";}
     string getResponse() const { return response;}
-    void setResponse(string res) 
+    void setResponse(string res)
     {
         this->response = res;
         if( response != "")
@@ -74,7 +75,7 @@ class Connection
     }
     bool isRequsetComplete() const {return req_complete;}
     bool responsePending() const {return response_pending;}
-        
+
 
     // Read data from socket and return read result
     int reciveMsg()
@@ -109,9 +110,9 @@ class Connection
         return (socket > 0 && write_fdset != nullptr && FD_ISSET(socket, write_fdset));
     }
     void setReadReady()
-    { 
+    {
         if(read_fdset && socket > 0)
-            FD_SET(socket, read_fdset);  
+            FD_SET(socket, read_fdset);
     }
     void setWriteReady()
     {

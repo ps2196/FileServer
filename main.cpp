@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     Connection connections[MAX_FDS];
 
-    
+
     char buf[1024];
     int rval = 0, i;
 
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
         FD_ZERO(&ready); FD_ZERO(&write_ready);
         FD_SET(sock, &ready);
         for (i = 0; i < MAX_FDS; i++) /* dodaj aktywne do zbioru */
-        {    
+        {
             connections[i].setReadReady();
             connections[i].setWriteReady();
         }
@@ -107,6 +107,8 @@ int main(int argc, char **argv)
                     if(connections[i].isRequsetComplete())
                     {
                         parser.parseRequest(&connections[i]);
+                        // Wyczysc request
+                        connections[i].resetRequest();
                     }
                     //sleep(1);
                 }
@@ -121,8 +123,8 @@ int main(int argc, char **argv)
     } while (TRUE);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,
-     * jednak wszystkie deskryptory zostana zamkniete gdy proces 
-     * zostanie zakonczony (np w wyniku wystapienia sygnalu) 
+     * jednak wszystkie deskryptory zostana zamkniete gdy proces
+     * zostanie zakonczony (np w wyniku wystapienia sygnalu)
      */
 
     exit(0);
