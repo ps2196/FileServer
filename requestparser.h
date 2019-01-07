@@ -21,7 +21,7 @@ class RequestParser
   private:
     AuthStrategy *auth;
     RequestEngine *engine;
-    
+
     //
     // Parse request held by given connection and generate response
     //
@@ -40,7 +40,7 @@ class RequestParser
             {
                 if(req["username"] == nullptr || req["password"] == nullptr)
                     return RESPONSE_BAD_REQUEST;
-                
+
                 string username = req["username"];
                 string pass = req["password"];
                 User *user = auth->auth( username, pass );
@@ -54,7 +54,7 @@ class RequestParser
                     json res_json;
                     res_json["type"] = "RESPONSE";
                     res_json["code"] = 200;
-                    res_json["data"] = "Welcome " + user->username;
+                    res_json["data"] = user->toJson();
                     return res_json.dump();
                 }
             }
@@ -82,7 +82,7 @@ class RequestParser
 
     //
     // Parse request from given connection and set connection properties
-    // 
+    //
     void parseRequest(Connection* conn)
     {
         string res = intParseRequest(conn);
