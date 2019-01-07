@@ -2,16 +2,42 @@
 #define USER_H
 
 #include <string>
-struct User
+#include "../utils/json.hpp"
+
+class User
 {
+  private:
     using string = std::string;
+    using json = nlohmann::json;
 
     string username;
     string password;
-    int disk_space_limit;
-    int public_size_limit;
+    int publicLimit;
+    int privateLimit;
+    float publicUsed;
+    float privateUsed;
 
-    User(string &name, string &pass, int disk_space, int public_space) : username(name), password(pass),
-                             disk_space_limit(disk_space), public_size_limit(public_space) {}
+  public:
+    User(string &name, string &pass, int pubLimit, int privLimit, float pubUsed, float privUsed) :
+      username(name),
+      password(pass),
+      publicLimit(pubLimit),
+      privateLimit(privLimit),
+      publicUsed(pubUsed),
+      privateUsed(privUsed) {}
+
+    json toJson()
+    {
+      json user;
+      user["username"] = username;
+      user["password"] = password;
+      user["publicLimit"] = publicLimit;
+      user["privateLimit"] = privateLimit;
+      user["publicUsed"] = publicUsed;
+      user["privateUsed"] = privateUsed;
+
+      return user;
+    }
+
 };
 #endif //USER_H
