@@ -76,19 +76,20 @@ class RequestParser
               if (user != nullptr && user->username == "root")
               {
                 // TODO: sprawdzac czy username zajęty. czy to po stronie klienta robic??
+                // TODO: zrobic jeszcze zapisywanie do pliku users.auth
 
                 string username = req["username"];
                 string password = req["password"];
                 string publicLimit = req["public"];
                 string privateLimit = req["private"];
-                string publicUsed = "0";
-                string privateUsed = "0";
+                float publicUsed = 0;
+                float privateUsed = 0;
 
                 User *newUser = new User(username, password,
                   std::atoi(publicLimit.c_str()),
                   std::atoi(privateLimit.c_str()),
-                  std::atof(publicUsed.c_str()),
-                  std::atof(privateUsed.c_str()));
+                  publicUsed,
+                  privateUsed);
 
                 json respone;
                 respone["type"] = "RESPONSE";
@@ -99,9 +100,7 @@ class RequestParser
                 return respone.dump();
               }
               else
-              {
                 return RESPONSE_UNAUTHORIZED;
-              }
             }
         }
         catch (json::parse_error)
