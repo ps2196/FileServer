@@ -27,7 +27,7 @@ class AuthStrategy
     {}
 
     // Returns line from user file describing given user
-    const string getUserLine(string& username)
+    const string getUserLine(const string& username)
     {
       std::ifstream uf(user_file.c_str());
       string line;

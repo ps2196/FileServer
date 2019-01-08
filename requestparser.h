@@ -71,27 +71,118 @@ class RequestParser
             }
             else if (cmd == "CREATEUSER")
             {
-              // TODO: wywalic to potem do request engine
               User *user = conn->getUser();
               if (user != nullptr && user->username == "root")
               {
                 // TODO: sprawdzac czy username zajęty. po stronie serwera
-                // TODO: zrobic jeszcze zapisywanie do pliku users.auth
+                string username = req["username"];
+                string password = req["password"];
+                string publicLimit = req["public"];
+                string privateLimit = req["private"];
+                string privateUsed = "0";
+                string publicUsed = "0";
+
+                json response;
+                response["type"] = "RESPONSE";
+                response["command"] = cmd;
+
+                if(auth->getUserLine(username) != "")
+                {
+                  response["code"] = 406; // not acceptable
+                  response["data"] = "Username is already used: " + username;
+                }
+                else if (engine->createUser(username, password, publicLimit, privateLimit, publicUsed, privateUsed) == 0)
+                {
+                  response["code"] = 201; // ok, created
+                  response["data"] = "User created: " + username;
+                }
+                return response.dump();
+              }
+              else
+                return RESPONSE_UNAUTHORIZED;
+            }
+            else if (cmd == "DELETEUSER")
+            {
+              //std::cout << "zara cie usune!";
+
+              User *user = conn->getUser();
+              if (user != nullptr && user->username == "root")
+              {
+                json response;
+                response["type"] = "RESPONSE";
+                response["command"] = cmd;
+
+                // TODO: wylogowac go najpierw
+                string username = req["username"];
+                if (engine->deleteUser(username) == 0)
+                {
+                  response["code"] = 200; // ok
+                  response["data"] = "User has been deleted: " + username;
+                }
+                else
+                {
+                  response["code"] = 409; // conflict
+                  response["data"] = "User has NOT been deleted: " + username;
+                }
+                return response.dump();
+              }
+              else
+                return RESPONSE_UNAUTHORIZED;
+            }
+            else if (cmd == "CHUSER")
+            {
+              User *user = conn->getUser();
+              if (user != nullptr && user->username == "root")
+              {
+                json response;
+                response["type"] = "RESPONSE";
+                response["command"] = cmd;
 
                 string username = req["username"];
                 string password = req["password"];
                 string publicLimit = req["public"];
                 string privateLimit = req["private"];
 
-                engine->createUser(username, password, publicLimit, privateLimit);
+                if (engine->alterUser(username, password, publicLimit, privateLimit) == 0)
+                {
+                  response["code"] = 200; // ok
+                  response["data"] = "User altered: " + username;
+                }
+                else
+                {
+                  response["code"] = 409; // conflict
+                  response["data"] = "User not altered: " + username;
+                }
 
-                json respone;
-                respone["type"] = "RESPONSE";
-                respone["command"] = cmd;
-                respone["code"] = 201; // ok, created
-                respone["data"] = "User created: " + username;
+                return response.dump();
+              }
+              else
+                return RESPONSE_UNAUTHORIZED;
+            }
+            else if (cmd == "USER")
+            {
+              User *user = conn->getUser();
+              if (user != nullptr  && (user->username == "root" || user->username == req["username"]))
+              {
+                json response;
+                response["type"] = "RESPONSE";
+                response["command"] = cmd;
 
-                return respone.dump();
+                string username = req["username"];
+                User *userToReturn = engine->getUser(username);
+
+                if (userToReturn != nullptr)
+                {
+                  response["code"] = 200; //ok
+                  response["data"] = userToReturn->toJson();
+                  delete user;
+                }
+                else
+                {
+                  response["code"] = 404; // not found
+                  response["data"] = "User not found.";
+                }
+                return response.dump();
               }
               else
                 return RESPONSE_UNAUTHORIZED;
