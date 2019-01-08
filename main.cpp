@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 
 
     AuthStrategy auth = AuthStrategy("auth/users.auth");
-    RequestEngine engine = RequestEngine("data", "auth");
+    RequestEngine engine = RequestEngine("data", "auth", &auth);
     RequestParser parser = RequestParser(&engine, &auth);
 
     Connection connections[MAX_FDS];
