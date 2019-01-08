@@ -22,7 +22,23 @@ class RequestEngine
     }
     RequestEngine(const char* data_root, const char* auth_root): data_root(data_root), auth_root(auth_root)
     {}
-    
+
+    int createUser(string &username, string &password, string &publicLimit, string &privateLimit)
+    {
+      try
+      {
+        std::ofstream usersFile;
+        usersFile.open(auth_root + "/users.auth", std::ios::app);
+        usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":0:0\n";
+        usersFile.close();
+        return 0;
+      }
+      catch (...)
+      {
+        return -1;
+      }
+    }
+
 
 };
 

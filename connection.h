@@ -86,6 +86,7 @@ class Connection
             perror("reading stream message");
         else if (rval > 0)
         {
+            //buf[rval] = '\0';
             request += buf;
             if(buf[rval-1] == '\0')
                 req_complete = true;

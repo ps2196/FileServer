@@ -82,20 +82,14 @@ class RequestParser
                 string password = req["password"];
                 string publicLimit = req["public"];
                 string privateLimit = req["private"];
-                float publicUsed = 0;
-                float privateUsed = 0;
 
-                User *newUser = new User(username, password,
-                  std::atoi(publicLimit.c_str()),
-                  std::atoi(privateLimit.c_str()),
-                  publicUsed,
-                  privateUsed);
+                engine->createUser(username, password, publicLimit, privateLimit);
 
                 json respone;
                 respone["type"] = "RESPONSE";
                 respone["command"] = cmd;
                 respone["code"] = 201; // ok, created
-                respone["data"] = newUser->toJson();
+                respone["data"] = "User created: " + username;
 
                 return respone.dump();
               }
