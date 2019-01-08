@@ -9,19 +9,27 @@ using string = std::string;
 
 int main()
 {   
-     AuthStrategy auth = AuthStrategy("auth/users.auth");
-     string u = "root";
-     string p = "root";
-     User* user = auth.auth(u, p);
-     if(user != nullptr)
-         std::cout << "OK\n";
-     else 
-          std::cout<<"Auth fail!\n";
-    // json j;
-    // j["dupa"] = "gruba";
-    // j["twoj_stary"] = "pijany";
-    // std::cout<<"JSON:\n"<<j["Aaa"]<<std::endl;
+    //  AuthStrategy auth = AuthStrategy("auth/users.auth");
+    //  string u = "root";
+    //  string p = "root";
+    //  User* user = auth.auth(u, p);
+    //  if(user != nullptr)
+    //      std::cout << "OK\n";
+    //  else 
+    //       std::cout<<"Auth fail!\n";
     
+    json j;
+    j["dupa"] = "gruba";
+    j["twoj_stary"] = "pijany";
+    std::cout<<"JSON:\n"<<j["Aaa"]<<std::endl;
+
+    auto ja = j["dupa"];
+    string a;
+    if(ja== nullptr)
+        std::cout<<"ja\n";
+    else 
+         a = static_cast<string>(ja);
+    std::cout<<"xx:\n"<<a<<std::endl;
     // string s = "{\"dupa\" : \"dupa\"}";
     // try{
     // json j = json::parse(s);

@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include <vector>
 //
 // Request engine provides interface for executing operations on the server
 //
@@ -23,6 +24,20 @@ class RequestEngine
     RequestEngine(const char* data_root, const char* auth_root): data_root(data_root), auth_root(auth_root)
     {}
     
+    int createFile(const string& path, const string& name)
+    {
+      //TO DO
+    }
+    
+    int listDirectory(const string& path, std::vector<string>& files)
+    {
+      //TO DO
+    }
+
+    int deleteFile(const string& path)
+    {
+      //TO DO
+    }
 
 };
 
