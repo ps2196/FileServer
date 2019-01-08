@@ -75,7 +75,7 @@ class RequestParser
               User *user = conn->getUser();
               if (user != nullptr && user->username == "root")
               {
-                // TODO: sprawdzac czy username zajęty. czy to po stronie klienta robic??
+                // TODO: sprawdzac czy username zajęty. po stronie serwera
                 // TODO: zrobic jeszcze zapisywanie do pliku users.auth
 
                 string username = req["username"];
