@@ -6,8 +6,8 @@
 #define TRUE 1
 #define READ_SIZE 20
 #define MAX_FDS 20
-#define max(a, b) (((a) > (b)) ? (a) : (b))
-
+//#define max(a, b) (((a) > (b)) ? (a) : (b))
+using max = std::max;
 #define DEFAULT_PORT 3333
 #define BACKLOG_SIZE 5 //maximum nuber of waiting connections, used in listen
 
@@ -26,9 +26,9 @@ int main(int argc, char **argv)
     RequestEngine engine = RequestEngine("data", "auth");
     RequestParser parser = RequestParser(&engine, &auth);
 
-    Connection connections[MAX_FDS];
+    Connection connections[MAX_FDS];// std::vector<>
 
-    
+
     char buf[1024];
     int rval = 0, i;
 
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
         FD_ZERO(&ready); FD_ZERO(&write_ready);
         FD_SET(sock, &ready);
         for (i = 0; i < MAX_FDS; i++) /* dodaj aktywne do zbioru */
-        {    
+        {
             connections[i].setReadReady();
             connections[i].setWriteReady();
         }
@@ -121,8 +121,8 @@ int main(int argc, char **argv)
     } while (TRUE);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,
-     * jednak wszystkie deskryptory zostana zamkniete gdy proces 
-     * zostanie zakonczony (np w wyniku wystapienia sygnalu) 
+     * jednak wszystkie deskryptory zostana zamkniete gdy proces
+     * zostanie zakonczony (np w wyniku wystapienia sygnalu)
      */
 
     exit(0);
