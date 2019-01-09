@@ -10,7 +10,7 @@
 #include "requestengine.hpp"
 #include "connection.h"
 #include <exception>
-
+#include <stdio.h>
 
 #define RESPONSE_BAD_REQUEST "{ \"type\":\"RESPONSE\", \"code\":400, \"data\":\"Bad request\"}"
 #define RESPONSE_SERVER_ERROR "{ \"type\":\"RESPONSE\", \"code\":500, \"data\":\"Internal server error\"}"
@@ -38,7 +38,7 @@ class RequestParser
     //
     void parseRequest(Connection *conn)
     {
-        string res = intParseRequest(conn)+'\0';
+        string res = intParseRequest(conn)+'\n';
         conn->setResponse(res);
     }
 
@@ -116,7 +116,7 @@ class RequestParser
     {
         try
         {
-            json req = json::parse(conn->getRequest());
+            json req = json::parse(conn->popRequest());
             string command = req["command"];
             string type = req["type"];
 

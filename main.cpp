@@ -6,7 +6,7 @@
 
 #define TRUE 1
 
-#define DEFAULT_PORT 3333
+#define DEFAULT_PORT 8888
 #define BACKLOG_SIZE 5 //maximum nuber of waiting connections, used in listen
 
 int main(int argc, char **argv)
@@ -121,3 +121,4 @@ int main(int argc, char **argv)
 
     exit(0);
 }
+

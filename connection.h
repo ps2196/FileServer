@@ -112,11 +112,14 @@ class Connection
         string& res = responses.front();
         std::cout<<"["<<socket<<"]Sending response: "<<responses.front()<<std::endl<<std::flush;
         int bytes_sent = send(socket,res.c_str(), res.size(),MSG_DONTWAIT);
-        
+        std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+
         if(bytes_sent < res.size() && bytes_sent > 0) // erase sent fragment from response and keep it in the Q
             res.erase(0,bytes_sent);
         else // Whole response was sent - pop it from Q
+        {
             responses.pop_front();
+        }   
     }
         
     // Return true if read from socket won't block
