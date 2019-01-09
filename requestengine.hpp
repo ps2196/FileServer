@@ -4,6 +4,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <boost/filesystem.hpp>
+
+namespace FS = boost::filesystem;
 //
 // Request engine provides interface for executing operations on the server
 //
@@ -28,7 +31,21 @@ class RequestEngine
     {
       //TO DO
     }
-    
+
+    int createDirectory(const string& path, string& err_msg)
+    {
+      try
+      {
+        FS::create_directory(data_root + path);
+      }
+      catch (FS::filesystem_error e)
+      {
+        err_msg = e.what();
+        return -1;
+      }
+      return 0;
+    }
+
     int listDirectory(const string& path, std::vector<string>& files)
     {
       //TO DO

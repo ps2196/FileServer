@@ -69,7 +69,7 @@ class RequestParser
             return RESPONSE_UNAUTHORIZED;
         else if (path_access == PATH_AUTH_NO_PATH)
             return RESPONSE_BAD_REQUEST;
-        return ""
+        return "";
     }
     
   private:
@@ -88,7 +88,6 @@ class RequestParser
         if(user->username == "root")
             return PATH_AUTH_OK;
         
-        //TO DO - sprawdzić katalog uzytkownika i public/private w path
         string spath = req["path"];
         if(spath == "")
             return PATH_AUTH_NO_PATH;
@@ -99,6 +98,11 @@ class RequestParser
             cv.push_back(cc);
             cc = spath[cv.size()];
         }
+        string path_user(cv.begin(), cv.end());
+        if(path_user == user->username)
+            return PATH_AUTH_OK;
+
+        return PATH_AUTH_NOAUTH;
     }
 
     //
