@@ -11,7 +11,7 @@
 
 #define RESPONSE_BAD_REQUEST "{ \"type\":\"RESPONSE\", \"code\":400, \"data\":\"Bad request\"}"
 #define RESPONSE_SERVER_ERROR "{ \"type\":\"RESPONSE\", \"code\":500, \"data\":\"Internal server error\"}"
-#define RESPONSE_UNAUTHORIZED "{ \"type\":\"RESPONSE\", \"code\":401, \"data\":\"Unauthorized\"}"
+#define RESPONSE_UNAUTHORIZED "{ \"type\":\"RESPONSE\", \"command\":\"AUTH\", \"code\":401, \"data\":\"Unauthorized\"}"
 
 class RequestParser
 {
@@ -93,7 +93,7 @@ class RequestParser
                 }
                 else if (engine->createUser(username, password, publicLimit, privateLimit, publicUsed, privateUsed) == 0)
                 {
-                  response["code"] = 201; // ok, created
+                  response["code"] = 200; // ok
                   response["data"] = "User created: " + username;
                 }
                 return response.dump();
