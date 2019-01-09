@@ -3,11 +3,13 @@
 
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include "utils/json.hpp"
 #include "auth_strategy/authstrategy.hpp"
 #include "requestengine.hpp"
 #include "connection.h"
+
 
 #define RESPONSE_BAD_REQUEST "{ \"type\":\"RESPONSE\", \"code\":400, \"data\":\"Bad request\"}"
 #define RESPONSE_SERVER_ERROR "{ \"type\":\"RESPONSE\", \"code\":500, \"data\":\"Internal server error\"}"
@@ -186,6 +188,76 @@ class RequestParser
               }
               else
                 return RESPONSE_UNAUTHORIZED;
+            }
+            else if (cmd == "DWL")
+            {
+              // 1. Check if authorized
+              User *user = conn->getUser();
+              if (true)//(user != nullptr  && (user->username == "root" || user->username == req["username"]))
+              {
+                // 2. Get details form request
+                string path = req["path"];
+
+                // 3. check if user has access to the requested file
+                string fileChunk;
+                engine->sendFile(path, fileChunk);
+
+                // 6. Create response
+                json response;
+                response["type"] = "RESPONSE";
+                response["command"] = "DWL";
+                response["code"] = 200; // ok
+                response["path"] = path;
+                response["data"] = fileChunk;
+
+                return response.dump();
+              }
+              else
+                return RESPONSE_UNAUTHORIZED;
+            }
+            else if (cmd == "GETFILE")
+            {
+              std::ifstream file("fotka.jpg", std::ios::binary);
+              file.seekg(0, file.end);
+              int length = file.tellg();
+              file.seekg(0, file.beg);
+
+              char *buffer = new char[length];
+              file.read(buffer, length);
+
+
+              //std::cout << buffer << std::endl;
+              unsigned char *toEncode = reinterpret_cast<unsigned char*>(buffer);
+              //std::cout << toEncode << std::endl;
+
+
+              string encoded = base64_encode(toEncode, length);
+
+              std::cout << "Size toEncode: " << length << " After encoding: " << encoded.size() << std::endl;
+
+              //std::cout << encoded << std::endl;
+
+              string decoded = base64_decode(encoded);
+              //std::cout << decoded << std::endl;
+
+              std::ofstream output("output", std::ios::binary);
+              output << decoded;
+
+              json fileJson;
+              fileJson["name"] = "fotka.jpg";
+              fileJson["path"] = "/server";
+              //fileJson["data"] = encoded;
+
+              json response;
+              response["type"] = "RESPONSE";
+              response["command"] = cmd;
+              response["code"] = 200; //ok
+              //response["data"] = fileJson;
+
+                return response.dump();
+
+              //return RESPONSE_BAD_REQUEST;
+
             }
         }
         catch (json::parse_error)

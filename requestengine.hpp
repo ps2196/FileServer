@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <string>
+#include "utils/base64.h"
 
 //
 // Request engine provides interface for executing operations on the server
@@ -137,6 +138,28 @@ class RequestEngine
       {
         return nullptr;
       }
+    }
+
+    int sendFile(const string &path, string &fileChunk)
+    {
+      const int chunkSize = 30;  // TODO: zmienic to na jakis const
+      const int offset = 0;
+
+      // read chunk of file considering offset
+      std::ifstream file(path, std::ios::binary);
+      file.seekg(offset);
+      char *buffer = new char[chunkSize];
+      file.read(buffer, chunkSize);
+
+      // Encode buffer
+      unsigned char *bufferToEncode = reinterpret_cast<unsigned char*>(buffer);
+      fileChunk = base64_encode(bufferToEncode, chunkSize);
+
+      // 7. clean up
+      file.close();
+      delete[] buffer;
+
+      return 0;
     }
 
 
