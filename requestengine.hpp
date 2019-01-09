@@ -12,50 +12,103 @@ namespace FS = boost::filesystem;
 //
 class RequestEngine
 {
-  private:
-    using string = std::string;
+private:
+  using string = std::string;
 
-    string data_root; // path to directory with users catalogues
-    string auth_root; // path to directory with auth files
+  string data_root; // path to directory with users catalogues
+  string auth_root; // path to directory with auth files
 
-  public:
-    RequestEngine(string& data_root, string& auth_root)
-    {
-        this->data_root = data_root;
-        this->auth_root = auth_root;
-    }
-    RequestEngine(const char* data_root, const char* auth_root): data_root(data_root), auth_root(auth_root)
-    {}
-    
-    int createFile(const string& path, const string& name)
-    {
-      //TO DO
-    }
+public:
+  RequestEngine(string &data_root, string &auth_root)
+  {
+    this->data_root = data_root;
+    this->auth_root = auth_root;
+  }
+  RequestEngine(const char *data_root, const char *auth_root) : data_root(data_root), auth_root(auth_root)
+  {
+  }
 
-    int createDirectory(const string& path, string& err_msg)
+  int createFile(const string &path, const string &name, string &err_msg)
+  {
+    try
     {
-      try
+      if (!FS::exists(path))
       {
-        FS::create_directory(data_root + path);
-      }
-      catch (FS::filesystem_error e)
-      {
-        err_msg = e.what();
+        err_msg = path + " does not exist";
         return -1;
       }
-      return 0;
+      std::ofstream f(path+"/"+name);
+      if(f.is_open())
+        f.close();
     }
-
-    int listDirectory(const string& path, std::vector<string>& files)
+    catch (const FS::filesystem_error &ex)
     {
-      //TO DO
+      err_msg = ex.what();
+      return -1;
     }
+    return 0;
+  }
 
-    int deleteFile(const string& path)
+  int createDirectory(const string &path, const string &name, string &err_msg)
+  {
+    try
     {
-      //TO DO
+      FS::create_directory(data_root + path + "/" + name);
     }
+    catch (const FS::filesystem_error &ex)
+    {
+      err_msg = ex.what();
+      return -1;
+    }
+    return 0;
+  }
 
+  //
+  // Go through given path put all file names in FILES and all directories names in DIRS
+  //
+  int listDirectory(const string &path, std::vector<string> &files, std::vector<string> &dirs, string &err_msg)
+  {
+    try
+    {
+      if (FS::exists(path))
+      {
+        if (FS::is_directory(path))
+        {
+          for (FS::directory_entry &i : FS::directory_iterator(path))
+          {
+            if (FS::is_directory(i.path()))
+              dirs.push_back(i.path().filename().string());
+            else
+              files.push_back(i.path().filename().string());
+          }
+        }
+        return 0;
+      }
+      else
+      {
+        err_msg = path + " does not exist.";
+      }
+    }
+    catch (const FS::filesystem_error &ex)
+    {
+      err_msg = ex.what();
+      return -1;
+    }
+  }
+
+  int deleteFile(const string &path, string& err_msg)
+  {
+    try
+    {
+      int files_removed = FS::remove_all(path);
+      return files_removed;
+    }
+    catch (const FS::filesystem_error &ex)
+    {
+      err_msg = ex.what();
+      return -1;
+    }
+  }
 };
 
 #endif // REQENGINE_H
