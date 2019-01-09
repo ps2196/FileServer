@@ -52,6 +52,7 @@ class RequestEngine
         newUsersFile.open(auth_root + "/usersTemp.auth");
 
         string line;
+        bool userDeleted = false;
 
         while (std::getline(usersFile, line))
         {
@@ -60,7 +61,14 @@ class RequestEngine
           {
             newUsersFile << line << std::endl;
           }
+          else
+          {
+            userDeleted = true;
+          }
         }
+
+        if (!userDeleted)
+          return -1;
 
         const string oldFile = auth_root + "/users.auth";
         const string tempFile = auth_root + "/usersTemp.auth";
