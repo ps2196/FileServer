@@ -13,6 +13,7 @@
 #include <list>
 #include <vector>
 #include "auth_strategy/user.hpp"
+#include <iostream>
 
 //
 // Connection provides intrface for user connection handling
