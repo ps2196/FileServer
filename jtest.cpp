@@ -5,13 +5,24 @@
 #include "auth_strategy/authstrategy.hpp"
 #include <boost/filesystem.hpp>
 #include <fstream>
+#include <vector>
+#include <list>
 
 using json = nlohmann::json;
 using string = std::string;
 namespace FS = boost::filesystem;
-
+using namespace std;
 int main()
 {   
+
+    list<string> l;
+    string s1 = "Piotrek";
+    l.push_back(s1);
+    cout<<"S1.1 = "<< l.front() <<endl;
+    l.front().erase(0,3);
+    cout<<"S1.2 = "<< l.front() <<endl;
+    return 0;
+
     // std::ofstream f("/TINRepo/server/Hello.txt");
     // if(f.good())
     //     std::cout<< "OK\n";
@@ -20,22 +31,33 @@ int main()
     // return 0;
     
     //FS::create_directories("./data/root");
-    try{
-    FS::create_directory("./data/scott/tmp");
+    // try{
+    // FS::create_directory("./data/scott/tmp");
     
-    std::ofstream f("./data/scott/Hello.txt");
-    if(f.good())
-        std::cout<< "OK\n";
-    else
-        std::cout << "ups...\n";
-    }
-    catch(FS::filesystem_error e)
-    {
-        std::cout<<e.what()<<std::endl;
-    }
+    // std::ofstream f("./data/scott/Hello.txt");
+    // if(f.good())
+    //     std::cout<< "OK\n";
+    // else
+    //     std::cout << "ups...\n";
+    // }
+    // catch(FS::filesystem_error e)
+    // {
+    //     std::cout<<e.what()<<std::endl;
+    // }
     
-    return 0;
-    
+//    using namespace std;
+//    vector<string> v;
+//    v.push_back("vect1");
+//    v.push_back("vect2");
+//    v.push_back("vect3");
+//     json b;
+//     b["BBB"] ="tu B";
+//     b["cos"] ="tam";
+//     json a;
+//     a["AAA"] = "abc";
+//     a["vector"] =  v;
+
+//     cout<<a.dump(4)<<endl;   
 
     //  AuthStrategy auth = AuthStrategy("auth/users.auth");
     //  string u = "root";

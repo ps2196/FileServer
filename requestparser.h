@@ -113,7 +113,7 @@ class RequestParser
     {
         try
         {
-            json req = json::parse(conn->getRequest());
+            json req = json::parse(conn->popRequest());
             if (req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
                 return RESPONSE_BAD_REQUEST;
 
