@@ -7,6 +7,7 @@
 #include "auth_strategy/authstrategy.hpp"
 #include "requestengine.hpp"
 #include "connection.h"
+#include <exception>
 
 #define RESPONSE_BAD_REQUEST "{ \"type\":\"RESPONSE\", \"code\":400, \"data\":\"Bad request\"}"
 #define RESPONSE_SERVER_ERROR "{ \"type\":\"RESPONSE\", \"code\":500, \"data\":\"Internal server error\"}"
@@ -34,7 +35,7 @@ class RequestParser
     //
     void parseRequest(Connection *conn)
     {
-        string res = intParseRequest(conn);
+        string res = intParseRequest(conn)+'\0';
         conn->setResponse(res);
     }
 
@@ -69,7 +70,7 @@ class RequestParser
             return RESPONSE_UNAUTHORIZED;
         else if (path_access == PATH_AUTH_NO_PATH)
             return RESPONSE_BAD_REQUEST;
-        return ""
+        return "";
     }
     
   private:
@@ -88,7 +89,6 @@ class RequestParser
         if(user->username == "root")
             return PATH_AUTH_OK;
         
-        //TO DO - sprawdzić katalog uzytkownika i public/private w path
         string spath = req["path"];
         if(spath == "")
             return PATH_AUTH_NO_PATH;
@@ -99,6 +99,11 @@ class RequestParser
             cv.push_back(cc);
             cc = spath[cv.size()];
         }
+        string path_user(cv.begin(), cv.end());
+        if(path_user == user->username)
+            return PATH_AUTH_OK;
+
+        return PATH_AUTH_NOAUTH;
     }
 
     //
@@ -108,7 +113,7 @@ class RequestParser
     {
         try
         {
-            json req = json::parse(conn->getRequest());
+            json req = json::parse(conn->popRequest());
             if (req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
                 return RESPONSE_BAD_REQUEST;
 
@@ -142,28 +147,54 @@ class RequestParser
                 string path_access = checkPathAuth(conn, req);
                 if (path_access != "")
                     return path_access;
-                int result  = engine->createFile(static_cast<string>(req["path"]), static_cast<string>(req["name"]));
-                return responseForReturnCode(result);
+                if(req["name"] == nullptr)
+                    return RESPONSE_BAD_REQUEST;
+                string err_msg;
+                int result  = engine->createFile(static_cast<string>(req["path"]), static_cast<string>(req["name"]), err_msg);
+                if(result < 0)
+                    generateResponse(409, err_msg);
+                
+                return generateResponse(200, "File created");
+            }
+            else if (cmd == "MKDIR")
+            { 
+                string path_access = checkPathAuth(conn, req);
+                if (path_access != "")
+                    return path_access;
+                if(req["name"] == nullptr)
+                    return RESPONSE_BAD_REQUEST;
+                string err_msg;
+                int result = engine->createDirectory(static_cast<string>(req["path"]), static_cast<string>(req["name"]),err_msg);
+                if(result < 0)
+                    return generateResponse(409, err_msg);
+                //OK   
+                return generateResponse(200,"Direcory created");
             }
             else if( cmd == "LS")
             {
                 string path_access = checkPathAuth(conn, req);
                 if (path_access != "")
                     return path_access;
-                std::vector<string> files; // container for ls reult
-                int result = engine->listDirectory(static_cast<string>(req["path"]), files);
+                std::vector<string> files, dirs; // containers for ls reult
+                string err_msg;
+                int result = engine->listDirectory(static_cast<string>(req["path"]), files, dirs, err_msg);
                 if( result < 0)
-                    return responseForReturnCode(result);
+                    return generateResponse(409, err_msg);
                 
-                return "TO DO"; // zamien files na JSON
+                return generateLSResponse(static_cast<string>(req["path"]), files, dirs);
             }
             else if( cmd == "RM")
             {
                 string path_access = checkPathAuth(conn, req);
                 if (path_access != "")
                     return path_access;
-                int result  = engine->deleteFile(static_cast<string>(req["path"]));
-                return responseForReturnCode(result);
+                string err_msg;
+                int result  = engine->deleteFile(static_cast<string>(req["path"]),err_msg);
+                if(result < 0)
+                    return  generateResponse(409, err_msg);
+                if(result == 0)
+                    return generateResponse(409, "Path not found");
+                return generateResponse(200,static_cast<string>(req["path"])+ " deleted");
             }
         }
         catch (json::parse_error)
@@ -176,12 +207,27 @@ class RequestParser
         }
     }
 
-    //
-    // Generates response based on return code of methods returned by engine methods
-    //
-    string responseForReturnCode(int code)
+
+    // Generate response with given code and text - text is put in "data" field
+    string generateResponse(int code, const string& text)
     {
-        return "TO DO";
+        json res_json;
+        res_json["type"] = "RESPONSE";
+        res_json["code"] = code;
+        res_json["data"] = text;
+        return res_json.dump();
+    }
+
+    // Generate response for LS request in JSON format
+    string generateLSResponse(const string& path, std::vector<string> files,std::vector<string> dirs)
+    {
+        json res_json;
+        res_json["type"] = "RESPONSE";
+        res_json["code"] = 200;
+        res_json["path"] = path;
+        res_json["files"] = files;
+        res_json["dirs"] = dirs;
+        return res_json.dump();
     }
 };
 
