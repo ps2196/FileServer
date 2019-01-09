@@ -35,7 +35,7 @@ class RequestParser
     //
     void parseRequest(Connection *conn)
     {
-        string res = intParseRequest(conn);
+        string res = intParseRequest(conn)+'\0';
         conn->setResponse(res);
     }
 
