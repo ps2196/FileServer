@@ -30,14 +30,15 @@ public:
 
   int createFile(const string &path, const string &name, string &err_msg)
   {
+    string p = data_root+path;
     try
     {
-      if (!FS::exists(path))
+      if (!FS::exists(p))
       {
         err_msg = path + " does not exist";
         return -1;
       }
-      std::ofstream f(path+"/"+name);
+      std::ofstream f(p+"/"+name);
       if(f.is_open())
         f.close();
     }
@@ -68,13 +69,14 @@ public:
   //
   int listDirectory(const string &path, std::vector<string> &files, std::vector<string> &dirs, string &err_msg)
   {
+    string p = data_root+path;
     try
     {
-      if (FS::exists(path))
+      if (FS::exists(p))
       {
-        if (FS::is_directory(path))
+        if (FS::is_directory(p))
         {
-          for (FS::directory_entry &i : FS::directory_iterator(path))
+          for (FS::directory_entry &i : FS::directory_iterator(p))
           {
             if (FS::is_directory(i.path()))
               dirs.push_back(i.path().filename().string());
@@ -100,7 +102,7 @@ public:
   {
     try
     {
-      int files_removed = FS::remove_all(path);
+      int files_removed = FS::remove_all(data_root + path);
       return files_removed;
     }
     catch (const FS::filesystem_error &ex)
