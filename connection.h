@@ -20,14 +20,9 @@
 class Connection
 {
   public:
-<<<<<<< HEAD
     static const int READ_SIZE = 256;
-    using string = std:: string;
-=======
-    static const int READ_SIZE = 256; 
     static const int REQUEST_SIZE_LIMIT = 10000; // maximum length of a single request
     using string = std::string;
->>>>>>> develop
   private:
     int socket; // socket used for communication with user
     User *user; // nullptr when user is not authorized
@@ -46,7 +41,7 @@ class Connection
         this->read_fdset = nullptr;
         this->write_fdset = nullptr;
     }
-    Connection(int socket, User *user = nullptr, fd_set* rfdset=nullptr, fd_set* wfdset=nullptr): 
+    Connection(int socket, User *user = nullptr, fd_set* rfdset=nullptr, fd_set* wfdset=nullptr):
     requests(),responses(),recived_chars()
     {
         this->socket = socket;
@@ -63,38 +58,24 @@ class Connection
     User* getUser() const {return user;}
     void setUser(User* user ){this->user = user;}
     int getSocket() const{return socket;}
-<<<<<<< HEAD
     void setSocket(int socket){this->socket = socket;}
-    string getRequest() const { return request;}
-    void resetRequest() { request = "";}
-    string getResponse() const { return response;}
-    void setResponse(string res)
-=======
-    void setSocket(int socket){this->socket = socket;} 
     //return request from Q fron without popping it
     string getRequest() const {return requests.front();}
     // Pops request from the queue and reurns it
     string popRequest()
     {
-        string req = requests.front(); 
+        string req = requests.front();
         requests.pop_front();
         return req;
     }
     string getResponse() const { return responses.front();}
-    void setResponse(string res) 
->>>>>>> develop
+    void setResponse(string res)
     {
         responses.push_back(res);
     }
-<<<<<<< HEAD
-    bool isRequsetComplete() const {return req_complete;}
-    bool responsePending() const {return response_pending;}
-
-=======
     bool isRequsetComplete() const {return (requests.size() > 0);}
     bool responsePending() const {return (responses.size() > 0);}
-        
->>>>>>> develop
+
 
     // Read data from socket and return read result
     int reciveMsg()
@@ -105,12 +86,6 @@ class Connection
             perror("reading stream message");
         else if (rval > 0)
         {
-<<<<<<< HEAD
-            //buf[rval] = '\0';
-            request += buf;
-            if(buf[rval-1] == '\0')
-                req_complete = true;
-=======
             buf[rval] = '\0';
             for(int i =0; i < rval; i++)
             {
@@ -125,23 +100,22 @@ class Connection
                     requests.push_back(string(recived_chars.begin(), recived_chars.end()));
                     recived_chars.clear();
                 }
-            }    
->>>>>>> develop
+            }
         }
         return rval;
     }
 
     void sendResponse()
-    {   
+    {
         string& res = responses.front();
         int bytes_sent = send(socket,res.c_str(), res.size(),MSG_DONTWAIT);
-        
+
         if(bytes_sent < res.size() && bytes_sent > 0) // erase sent fragment from response and keep it in the Q
             res.erase(0,bytes_sent);
         else // Whole response was sent - pop it from Q
             responses.pop_front();
     }
-        
+
     // Return true if read from socket won't block
     // Server needs to call select() for this to work
     bool isReadReady()
@@ -173,7 +147,7 @@ class Connection
         read_fdset = nullptr;
         write_fdset = nullptr;
         requests.clear();
-        responses.clear(); 
+        responses.clear();
     }
 };
 

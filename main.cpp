@@ -5,14 +5,7 @@
 #include <vector>
 
 #define TRUE 1
-<<<<<<< HEAD
-#define READ_SIZE 20
-#define MAX_FDS 20
-//#define max(a, b) (((a) > (b)) ? (a) : (b))
-using max = std::max;
-=======
 
->>>>>>> c7605d378703f3f93e5b0eaab33c15108df57601
 #define DEFAULT_PORT 3333
 #define BACKLOG_SIZE 5 //maximum nuber of waiting connections, used in listen
 
@@ -26,24 +19,11 @@ int main(int argc, char **argv)
     int msgsock = -1, nfds, nactive;
 
     AuthStrategy auth = AuthStrategy("auth/users.auth");
-<<<<<<< HEAD
-    RequestEngine engine = RequestEngine("data", "auth", &auth);
-=======
     RequestEngine engine = RequestEngine("data/", "auth/");
->>>>>>> develop
     RequestParser parser = RequestParser(&engine, &auth);
 
-<<<<<<< HEAD
-    Connection connections[MAX_FDS];// std::vector<>
-
-=======
     std::vector<Connection> connections;
->>>>>>> c7605d378703f3f93e5b0eaab33c15108df57601
 
-<<<<<<< HEAD
-
-=======
->>>>>>> develop
     char buf[1024];
     int rval = 0, i;
 
@@ -80,16 +60,8 @@ int main(int argc, char **argv)
     {
         FD_ZERO(&ready); FD_ZERO(&write_ready);
         FD_SET(sock, &ready);
-<<<<<<< HEAD
-        for (i = 0; i < MAX_FDS; i++) /* dodaj aktywne do zbioru */
-        {
-<<<<<<< HEAD
-=======
-=======
         for (i = 0; i < connections.size(); i++) /* dodaj aktywne do zbioru */
-        {    
->>>>>>> c7605d378703f3f93e5b0eaab33c15108df57601
->>>>>>> develop
+        {
             connections[i].setReadReady();
             connections[i].setWriteReady();
         }
@@ -130,8 +102,6 @@ int main(int argc, char **argv)
                     if(connections[i].isRequsetComplete())
                     {
                         parser.parseRequest(&connections[i]);
-                        // Wyczysc request
-                        connections[i].resetRequest();
                     }
                     //sleep(1);
                 }
@@ -141,7 +111,7 @@ int main(int argc, char **argv)
                 connections[i].sendResponse();
             }
         }
-        
+
     } while (TRUE);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,

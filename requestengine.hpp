@@ -3,15 +3,12 @@
 
 #include <fstream>
 #include <string>
-<<<<<<< HEAD
 #include "utils/base64.h"
 
-=======
 #include <vector>
 #include <boost/filesystem.hpp>
 
 namespace FS = boost::filesystem;
->>>>>>> develop
 //
 // Request engine provides interface for executing operations on the server
 //
@@ -33,7 +30,6 @@ public:
   {
   }
 
-<<<<<<< HEAD
     string data_root; // path to directory with users catalogues
     string auth_root; // path to directory with auth files
     AuthStrategy *auth;
@@ -183,7 +179,6 @@ public:
       return 0;
     }
 
-=======
   int createFile(const string &path, const string &name, string &err_msg)
   {
     string p = data_root+path;
@@ -253,7 +248,6 @@ public:
       return -1;
     }
   }
->>>>>>> develop
 
   int deleteFile(const string &path, string& err_msg)
   {

@@ -26,8 +26,6 @@ class RequestParser
     AuthStrategy *auth;
     RequestEngine *engine;
 
-<<<<<<< HEAD
-=======
   public:
     RequestParser(RequestEngine *engine, AuthStrategy *auth_strategy)
     {
@@ -77,15 +75,15 @@ class RequestParser
             return RESPONSE_BAD_REQUEST;
         return "";
     }
-    
+
   private:
     //
     // Check if given permission is authorized to access path in given req
     // Success mean that req conatins "path" field
     //
     int intCheckPathAuth(Connection *conn, const json &req)
-    {   
-        auto path = req["path"];  
+    {
+        auto path = req["path"];
         if(path == nullptr)
             return PATH_AUTH_NO_PATH;
         User* user = conn->getUser();
@@ -93,7 +91,7 @@ class RequestParser
             return PATH_AUTH_NOAUTH;
         if(user->username == "root")
             return PATH_AUTH_OK;
-        
+
         string spath = req["path"];
         if(spath == "")
             return PATH_AUTH_NO_PATH;
@@ -111,7 +109,6 @@ class RequestParser
         return PATH_AUTH_NOAUTH;
     }
 
->>>>>>> develop
     //
     // Parse request held by given connection and generate response
     //
@@ -119,7 +116,6 @@ class RequestParser
     {
         try
         {
-<<<<<<< HEAD
             json req = json::parse(conn->getRequest());
             string command = req["command"];
             string type = req["type"];
@@ -127,10 +123,6 @@ class RequestParser
             printf("%s %s\n", type.c_str(), command.c_str());
 
             if(req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
-=======
-            json req = json::parse(conn->popRequest());
-            if (req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
->>>>>>> develop
                 return RESPONSE_BAD_REQUEST;
 
             auto cmd = req["command"];
@@ -160,7 +152,7 @@ class RequestParser
                 }
             }
             else if (cmd == "TOUCH")
-            { 
+            {
                 string path_access = checkPathAuth(conn, req);
                 if (path_access != "")
                     return path_access;
@@ -170,11 +162,11 @@ class RequestParser
                 int result  = engine->createFile(static_cast<string>(req["path"]), static_cast<string>(req["name"]), err_msg);
                 if(result < 0)
                     generateResponse(409, err_msg);
-                
+
                 return generateResponse(200, "File created");
             }
             else if (cmd == "MKDIR")
-            { 
+            {
                 string path_access = checkPathAuth(conn, req);
                 if (path_access != "")
                     return path_access;
@@ -184,7 +176,7 @@ class RequestParser
                 int result = engine->createDirectory(static_cast<string>(req["path"]), static_cast<string>(req["name"]),err_msg);
                 if(result < 0)
                     return generateResponse(409, err_msg);
-                //OK   
+                //OK
                 return generateResponse(200,"Direcory created");
             }
             else if( cmd == "LS")
@@ -197,7 +189,7 @@ class RequestParser
                 int result = engine->listDirectory(static_cast<string>(req["path"]), files, dirs, err_msg);
                 if( result < 0)
                     return generateResponse(409, err_msg);
-                
+
                 return generateLSResponse(static_cast<string>(req["path"]), files, dirs);
             }
             else if( cmd == "RM")
@@ -423,15 +415,8 @@ class RequestParser
         return res_json.dump();
     }
 
-<<<<<<< HEAD
-    //
-    // Parse request from given connection and set connection properties
-    //
-    void parseRequest(Connection* conn)
-=======
     // Generate response for LS request in JSON format
     string generateLSResponse(const string& path, std::vector<string> files,std::vector<string> dirs)
->>>>>>> develop
     {
         json res_json;
         res_json["type"] = "RESPONSE";
