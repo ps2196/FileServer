@@ -1,5 +1,8 @@
 #!bin/bash
+CC=g++
+LINK_FLAGS=-lboost_system -lboost_filesystem
+FLAGS=-std=c++11
 main.o:
-	g++ main.cpp -std=c++11 -o server
+	$(CC) main.cpp $(FLAGS) $(LINK_FLAGS) -o server 
 all:
-	g++ main.cpp -std=c++11 -o server
+	$(CC) main.cpp $(FLAGS) $(LINK_FLAGS) -o server
