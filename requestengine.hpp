@@ -3,9 +3,9 @@
 
 #include <fstream>
 #include <string>
-#include "utils/base64.h"
-
 #include <vector>
+#include "utils/base64.h"
+#include "auth_strategy/authstrategy.hpp"
 #include <boost/filesystem.hpp>
 
 namespace FS = boost::filesystem;
@@ -19,6 +19,7 @@ private:
 
   string data_root; // path to directory with users catalogues
   string auth_root; // path to directory with auth files
+  AuthStrategy *auth;
 
 public:
   RequestEngine(string &data_root, string &auth_root)
@@ -29,10 +30,6 @@ public:
   RequestEngine(const char *data_root, const char *auth_root) : data_root(data_root), auth_root(auth_root)
   {
   }
-
-    string data_root; // path to directory with users catalogues
-    string auth_root; // path to directory with auth files
-    AuthStrategy *auth;
 
   public:
     RequestEngine(string& data_root, string& auth_root, AuthStrategy *auth)
@@ -49,7 +46,7 @@ public:
       try
       {
         std::ofstream usersFile;
-        usersFile.open(auth_root + "/users.auth", std::ios::app);
+        usersFile.open(auth_root + "users.auth", std::ios::app);
         usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":" + publicUsed + ":" + privateUsed + "\n";
         usersFile.close();
         return 0;
@@ -66,8 +63,8 @@ public:
       {
         std::ifstream usersFile;
         std::ofstream newUsersFile;
-        usersFile.open(auth_root + "/users.auth");
-        newUsersFile.open(auth_root + "/usersTemp.auth");
+        usersFile.open(auth_root + "users.auth");
+        newUsersFile.open(auth_root + "usersTemp.auth");
 
         string line;
         bool userDeleted = false;
@@ -84,8 +81,8 @@ public:
         if (!userDeleted)
           return -1;
 
-        const string oldFile = auth_root + "/users.auth";
-        const string tempFile = auth_root + "/usersTemp.auth";
+        const string oldFile = auth_root + "users.auth";
+        const string tempFile = auth_root + "usersTemp.auth";
 
         remove(oldFile.c_str());
         rename(tempFile.c_str(), oldFile.c_str());
