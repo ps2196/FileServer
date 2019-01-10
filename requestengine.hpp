@@ -41,13 +41,13 @@ public:
     RequestEngine(const char* data_root, const char* auth_root, AuthStrategy *auth): data_root(data_root), auth_root(auth_root), auth(auth)
     {}
 
-    int createUser(const string &username, const string &password, const string &publicLimit, const string &privateLimit, string &publicUsed, string &privateUsed)
+    int createUser(const string &username, const string &password, const string &publicLimit, const string &privateLimit, const string& pubUsed = "0", const string privUsed = "0")
     {
       try
       {
         std::ofstream usersFile;
         usersFile.open(auth_root + "users.auth", std::ios::app);
-        usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":" + publicUsed + ":" + privateUsed + "\n";
+        usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":"+pubUsed+":"+privUsed+"\n";
         usersFile.close();
         return 0;
       }
@@ -130,14 +130,14 @@ public:
       }
     }
 
-    User* getUser(string &username)
+    string getUser(const string &username)
     {
       try
       {
         string userLine = auth->getUserLine(username);
 
         if (userLine == "")
-          return nullptr;
+          return "";
 
         std::vector<string> user = splitWithDelimiter(userLine, ':');
         string password = user[1];
@@ -145,8 +145,8 @@ public:
         string privateLimit = user[3];
         string publicUsed = user[4];
         string privateUsed = user[5];
-
-        return new User(username, password, std::stoi(publicLimit), std::stoi(privateLimit), std::stof(publicUsed.c_str()), std::stof(privateUsed.c_str()));
+        User u(username, password, std::stoi(publicLimit), std::stoi(privateLimit), std::stof(publicUsed.c_str()), std::stof(privateUsed.c_str()));
+        return u.toJson(); 
       }
       catch (...)
       {
