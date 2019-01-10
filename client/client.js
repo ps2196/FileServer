@@ -1,7 +1,7 @@
 var net = require('net');
 
 var client = net.Socket();
-client.connect(3333, 'localhost', function() {
+client.connect(8888, 'localhost', function() {
     console.log('Connected to server!');
     msg = {
         "type":"REQUEST",

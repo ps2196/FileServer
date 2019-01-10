@@ -23,6 +23,24 @@ struct User
       privateLimit(privLimit),
       publicUsed(pubUsed),
       privateUsed(privUsed) {}
+    
+    User(const User& other)
+    {
+      *this = other;
+    }
+    const User& operator=(const User& other)
+    {
+      if(this != &other)
+      {
+        username = other.username;
+        password = other.password;
+        publicLimit = other.publicLimit;
+        privateLimit = other.privateLimit;
+        publicUsed = other.publicUsed;
+        privateUsed = other.privateUsed;
+      }
+      return *this;
+    }
 
     json toJson()
     {
