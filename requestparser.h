@@ -38,7 +38,7 @@ class RequestParser
     //
     void parseRequest(Connection *conn)
     {
-        string res = intParseRequest(conn)+'\n';
+        string res = intParseRequest(conn) + '\n';
         conn->setResponse(res);
     }
 
@@ -159,7 +159,9 @@ class RequestParser
                 if(req["name"] == nullptr)
                     return RESPONSE_BAD_REQUEST;
                 string err_msg;
-                int result  = engine->createFile(static_cast<string>(req["path"]), static_cast<string>(req["name"]), err_msg);
+                string path = req["path"];
+                string name = req["name"];
+                int result  = engine->createFile(path, name, err_msg);
                 if(result < 0)
                     generateResponse(409, err_msg);
 
@@ -173,7 +175,9 @@ class RequestParser
                 if(req["name"] == nullptr)
                     return RESPONSE_BAD_REQUEST;
                 string err_msg;
-                int result = engine->createDirectory(static_cast<string>(req["path"]), static_cast<string>(req["name"]),err_msg);
+                string path = req["path"];
+                string name = req["name"];
+                int result = engine->createDirectory(path, name, err_msg);
                 if(result < 0)
                     return generateResponse(409, err_msg);
                 //OK
@@ -186,11 +190,13 @@ class RequestParser
                     return path_access;
                 std::vector<string> files, dirs; // containers for ls reult
                 string err_msg;
-                int result = engine->listDirectory(static_cast<string>(req["path"]), files, dirs, err_msg);
+
+                string path = req["path"];
+                int result = engine->listDirectory(path, files, dirs, err_msg);
                 if( result < 0)
                     return generateResponse(409, err_msg);
 
-                return generateLSResponse(static_cast<string>(req["path"]), files, dirs);
+                return generateLSResponse(path, files, dirs);
             }
             else if( cmd == "RM")
             {
@@ -198,12 +204,16 @@ class RequestParser
                 if (path_access != "")
                     return path_access;
                 string err_msg;
-                int result  = engine->deleteFile(static_cast<string>(req["path"]),err_msg);
+
+                string path = req["path"];
+                int result  = engine->deleteFile(path,err_msg);
                 if(result < 0)
                     return  generateResponse(409, err_msg);
                 if(result == 0)
                     return generateResponse(409, "Path not found");
-                return generateResponse(200,static_cast<string>(req["path"])+ " deleted");
+
+
+                return generateResponse(200, path + " deleted");
             }
             else if (cmd == "CREATEUSER")
             {
@@ -331,18 +341,33 @@ class RequestParser
               {
                 // 2. Get details form request
                 string path = req["path"];
+                int offset = req["offset"];
+                //int offsetInt = (int)offset.c_str();
 
                 // 3. check if user has access to the requested file
+                // TODO
+
+                json response;
+
                 string fileChunk;
-                engine->sendFile(path, fileChunk);
+                if (engine->sendFile(path, fileChunk, offset) == 1)
+                {
+                  response["code"] = 201; // ok, whole file was sent
+                }
+                else
+                {
+                  response["code"] = 200; // ok, but there is more to be sent
+                }
 
                 // 6. Create response
-                json response;
+                json data;
+                data["path"] = path;
+                data["data"] = fileChunk;
+
+
                 response["type"] = "RESPONSE";
                 response["command"] = "DWL";
-                response["code"] = 200; // ok
-                response["path"] = path;
-                response["data"] = fileChunk;
+                response["data"] = data;
 
                 return response.dump();
               }

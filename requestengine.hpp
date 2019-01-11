@@ -154,10 +154,10 @@ public:
       }
     }
 
-    int sendFile(const string &path, string &fileChunk)
+    int sendFile(const string &path, string &fileChunk, int offset)
     {
-      const int chunkSize = 30;  // TODO: zmienic to na jakis const
-      const int offset = 0;
+      int chunkSize = 2048;  // TODO: zmienic to na jakis const
+      //const int offset = 0;
 
       // read chunk of file considering offset
       std::ifstream file(path, std::ios::binary);
@@ -165,9 +165,16 @@ public:
       char *buffer = new char[chunkSize];
       file.read(buffer, chunkSize);
 
+      if (file.gcount() == 0)
+        return 1; // entire file was send
+
+      //std::cout<<"Read: " << buffer << std::endl;
+
       // Encode buffer
       unsigned char *bufferToEncode = reinterpret_cast<unsigned char*>(buffer);
       fileChunk = base64_encode(bufferToEncode, chunkSize);
+
+      //std::cout << "Encoded: " << fileChunk << std::endl;
 
       // 7. clean up
       file.close();
