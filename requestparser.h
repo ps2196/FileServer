@@ -341,7 +341,7 @@ class RequestParser
               {
                 // 2. Get details form request
                 string path = req["path"];
-                int offset = req["offset"];
+                unsigned long offset = req["offset"];
                 //int offsetInt = (int)offset.c_str();
 
                 // 3. check if user has access to the requested file

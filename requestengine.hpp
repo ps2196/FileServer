@@ -154,7 +154,7 @@ public:
       }
     }
 
-    int sendFile(const string &path, string &fileChunk, int offset)
+    int sendFile(const string &path, string &fileChunk, unsigned long offset)
     {
       int chunkSize = 2048;  // TODO: zmienic to na jakis const
       //const int offset = 0;
