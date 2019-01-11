@@ -11,10 +11,14 @@
 #include "connection.h"
 #include <exception>
 #include <stdio.h>
+#include <unordered_map>
+#include <utility>
 
 #define RESPONSE_BAD_REQUEST "{ \"type\":\"RESPONSE\", \"code\":400, \"data\":\"Bad request\"}"
 #define RESPONSE_SERVER_ERROR "{ \"type\":\"RESPONSE\", \"code\":500, \"data\":\"Internal server error\"}"
 #define RESPONSE_UNAUTHORIZED "{ \"type\":\"RESPONSE\", \"command\":\"AUTH\", \"code\":401, \"data\":\"Unauthorized\"}"
+
+extern std::unordered_map<std::string, Connection*> activeUploads;//maps path to Connections witch uplad the file
 
 class RequestParser
 {
@@ -253,6 +257,23 @@ class RequestParser
               }
               else
                 return RESPONSE_UNAUTHORIZED;
+            }
+            else if (cmd == "UPL")
+            {
+                string path_access = checkPathAuth(conn, req);
+                if (path_access != "")
+                    return path_access;
+                string path = req["path"];
+                auto upload = activeUploads.find(path);
+                // if(upload == activeUploads.end())
+                //     activeUploads.insert(std::make_pair<string,Connection*>(path,(Connection*)conn));
+                // else if(upload->second != conn)
+                //     return generateResponse(406, cmd, "There is an ongoing upload of "+path+" try again later.");
+                if(req["data"] == nullptr)
+                    return generateResponse(400, cmd, "Bad request");
+                string data = req["data"];
+                engine->handleUpload(path, data);
+                return generateResponse(200, "UPL", path +" uploaded sucessfully");
             }
             else if (cmd == "DWL")
             {

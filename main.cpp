@@ -5,11 +5,16 @@
 #include <vector>
 #include <string>
 #include <iostream>
-
-#define DEFAULT_PORT 8888
-#define BACKLOG_SIZE 5 //maximum nuber of waiting connections, used in listen
+#include <unordered_map>
 
 using string = std::string;
+
+#define DEFAULT_PORT 8888
+#define BACKLOG_SIZE 5 //maximum number of waiting connections, used in listen
+
+
+std::unordered_map<std::string, Connection*> activeUploads; // maps path to Connections witch uplad the file
+
 int parseCommandLineArgs(int argc, char **argv, int &port, string &data_root, string& auth_root);
 
 int main(int argc, char **argv)
