@@ -108,9 +108,9 @@ int main(int argc, char **argv)
                 //std::cout << "WRITE IS READY\n";
                 if (connections[i].responsesPending())
                 {
-                  std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
+                  //std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
                   connections[i].sendResponse();
-                  std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
+                  //std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
                 }
 
             }

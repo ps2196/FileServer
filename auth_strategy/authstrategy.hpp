@@ -21,15 +21,18 @@ class AuthStrategy
 
   public:
 
-    AuthStrategy(string& user_file): user_file(user_file)
-    {}
+    AuthStrategy(const string& user_file)
+    {
+      this->user_file = user_file;
+    }
+      /*
     AuthStrategy(const char* user_file): user_file(user_file)
-    {}
+    {}*/
 
     // Returns line from user file describing given user
     const string getUserLine(const string& username)
     {
-      std::ifstream uf(user_file.c_str());
+      std::ifstream uf(user_file);
       string line;
       while(std::getline(uf, line))
       {
@@ -38,7 +41,10 @@ class AuthStrategy
         if(userDesc.size() < 4)
           continue;
         if(userDesc[0] == username)
+        {
+          uf.close();
           return line;
+        }
       }
       uf.close();
       return "";

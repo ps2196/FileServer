@@ -16,7 +16,7 @@ struct User
     float publicUsed;
     float privateUsed;
 
-    User(string &name, string &pass, int pubLimit, int privLimit, float pubUsed, float privUsed) :
+    User(const string &name, string &pass, int pubLimit, int privLimit, float pubUsed, float privUsed) :
       username(name),
       password(pass),
       publicLimit(pubLimit),

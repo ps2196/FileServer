@@ -28,7 +28,7 @@ private:
   string path; // file path
   unsigned long long offset; // current file offset
   std::ifstream file; // file to be sent
-  const int CHUNK_SIZE = 1; // size of data chunk of file
+  const int CHUNK_SIZE = 1024; // size of data chunk of file
   Connection *connection; // connection which triggered download process
   using json = nlohmann::json;
 
@@ -43,7 +43,7 @@ public:
 
   char* getDataChunk();
 
-  string getPath() {return path;}
+  string getPath() const {return path;}
 
 };
 
@@ -100,12 +100,11 @@ class Connection
     {
         string req = requests.front();
         requests.pop_front();
-        std::cout << "pop request: " << req << "left: " << requests.size() << std::endl;
         return req;
     }
     void setResponse(string res)
     {
-        std::cout << "ADDING RESPONSE: " + res << std::endl;
+        //std::cout << "ADDING RESPONSE: " + res << std::endl;
         responses.push_back(res);
     }
     bool isRequsetComplete() const {return (requests.size() > 0);}
@@ -144,10 +143,10 @@ class Connection
     void sendResponse()
     {
         string& res = responses.front();
-        std::cout<<"["<<socket<<"]Sending response: "<<responses.front()<<std::endl<<std::flush;
+        //std::cout<<"["<<socket<<"]Sending response: "<<std::endl<<std::flush;//<<responses.front()<<std::endl<<std::flush;
         int bytes_sent = send(socket,res.c_str(), res.size(),MSG_DONTWAIT);
-        std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
-        sleep(2);
+        //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+        //sleep(1);
         if(bytes_sent < res.size() && bytes_sent > 0) // erase sent fragment from response and keep it in the Q
             res.erase(0,bytes_sent);
         else // Whole response was sent - pop it from Q
@@ -165,19 +164,15 @@ class Connection
         {
           if (downloadProcesses[i]->putNextPackage(1) == 0)
           {
-            std::cout<<"end of file\n";
+            std::cout<<"DWL [" << downloadProcesses[i]->getPath() << "] ENDED\n";
             delete downloadProcesses[i];
             downloadProcesses[i] = nullptr;
-          }
-          else
-          {
-            std::cout << "adding package: " << downloadProcesses[i]->getPath() << std::endl;
           }
         }
       }
     }
 
-    void pushActiveDownload(downloadProcess *actvDwnl)
+    void pushDownloadProcess(downloadProcess *actvDwnl)
     {
       downloadProcesses.push_back(actvDwnl);
     }
@@ -274,7 +269,8 @@ int downloadProcess::putOneChunk()
   connection->setResponse(responseString);
 
   // clean up
-  delete binaryChunk;
+  delete[] binaryChunk;
+  //delete encodedChunk;
   return 0;
 }
 
