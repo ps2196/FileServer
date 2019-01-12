@@ -102,85 +102,35 @@ public:
       try
       {
         // find user
-        string userLine = auth->getUserLine(username);
-
-        if (userLine == "")
+        User *user = findUser(username);
+        if (user == nullptr)
           return -1;
 
-        //std::cout << userLine << std::endl;
-        std::vector<string> user = splitWithDelimiter(userLine, ':');
-
         // save used spaces
-        string pubUsed = user[4];
-        string privUsed = user[5];
+        string pubUsed = std::to_string(user->publicLimit);
+        string privUsed = std::to_string(user->privateLimit);
 
         // delete old user
         if (deleteUser(username) != 0)
+        {
+          delete user;
           return -1;
+        }
 
         // create new
         if (createUser(username, password, pubLimit, privLimit, pubUsed, privUsed) != 0)
+        {
+          delete user;
           return -1;
+        }
 
+        delete user;
         return 0;
       }
       catch (...)
       {
         return -1;
       }
-    }
-
-    User* getUser(string &username)
-    {
-      try
-      {
-        string userLine = auth->getUserLine(username);
-
-        if (userLine == "")
-          return nullptr;
-
-        std::vector<string> user = splitWithDelimiter(userLine, ':');
-        string password = user[1];
-        string publicLimit = user[2];
-        string privateLimit = user[3];
-        string publicUsed = user[4];
-        string privateUsed = user[5];
-
-        return new User(username, password, std::stoi(publicLimit), std::stoi(privateLimit), std::stof(publicUsed.c_str()), std::stof(privateUsed.c_str()));
-      }
-      catch (...)
-      {
-        return nullptr;
-      }
-    }
-
-    int sendFile(const string &path, string &fileChunk, unsigned long offset)
-    {
-      int chunkSize = 2048;  // TODO: zmienic to na jakis const
-      //const int offset = 0;
-
-      // read chunk of file considering offset
-      std::ifstream file(path, std::ios::binary);
-      file.seekg(offset);
-      char *buffer = new char[chunkSize];
-      file.read(buffer, chunkSize);
-
-      if (file.gcount() == 0)
-        return 1; // entire file was send
-
-      //std::cout<<"Read: " << buffer << std::endl;
-
-      // Encode buffer
-      unsigned char *bufferToEncode = reinterpret_cast<unsigned char*>(buffer);
-      fileChunk = base64_encode(bufferToEncode, chunkSize);
-
-      //std::cout << "Encoded: " << fileChunk << std::endl;
-
-      // 7. clean up
-      file.close();
-      delete[] buffer;
-
-      return 0;
     }
 
   int createFile(const string &path, const string &name, string &err_msg)
@@ -264,6 +214,30 @@ public:
     {
       err_msg = ex.what();
       return -1;
+    }
+  }
+
+  User* findUser(const string &username)
+  {
+    std::ifstream usersFile;
+    usersFile.open(auth_root + "users.auth");
+
+    string line;
+    while (std::getline(usersFile, line))
+    {
+      std::vector<string> userString = splitWithDelimiter(line, ':');
+      string usrName = userString[0];
+      string pass = userString[1];
+      string pubLimit = userString[2];
+      string privLimit = userString[3];
+      string pubUsed = userString[4];
+      string privUsed = userString[5];
+
+      if (usrName == username)
+      {
+        usersFile.close();
+        return new User(username, pass, std::stoi(pubLimit), std::stoi(privLimit), std::stof(pubUsed.c_str()), std::stof(privUsed.c_str()));
+      }
     }
   }
 };
