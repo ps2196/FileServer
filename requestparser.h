@@ -39,7 +39,8 @@ class RequestParser
     void parseRequest(Connection *conn)
     {
         string res = intParseRequest(conn) + '\n';
-        conn->setResponse(res);
+        if (res != "dupa\n")
+          conn->setResponse(res);
     }
 
     //
@@ -341,35 +342,26 @@ class RequestParser
               {
                 // 2. Get details form request
                 string path = req["path"];
-                unsigned long offset = req["offset"];
-                //int offsetInt = (int)offset.c_str();
 
                 // 3. check if user has access to the requested file
-                // TODO
+                // todo
 
-                json response;
+                // Create download process and push to the conn.activeDownloads list
+                downloadProcess *dwlProc = new downloadProcess(path, conn);
+                conn->pushActiveDownload(dwlProc);
 
-                string fileChunk;
-                if (engine->sendFile(path, fileChunk, offset) == 1)
-                {
-                  response["code"] = 201; // ok, whole file was sent
-                }
-                else
-                {
-                  response["code"] = 200; // ok, but there is more to be sent
-                }
+                // Push first package of data
+                dwlProc->putNextPackage(5);
+
+                std::cout << "First package of: " << path << std::endl;
 
                 // 6. Create response
-                json data;
-                data["path"] = path;
-                data["data"] = fileChunk;
-
-
+                json response;
                 response["type"] = "RESPONSE";
                 response["command"] = "DWL";
-                response["data"] = data;
+                response["code"] = 201; // ok, wait
 
-                return response.dump();
+                return "dupa";
               }
               else
                 return RESPONSE_UNAUTHORIZED;
