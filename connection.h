@@ -105,10 +105,11 @@ class Connection
     }
     void setResponse(string res)
     {
+        std::cout << "ADDING RESPONSE: " + res << std::endl;
         responses.push_back(res);
     }
     bool isRequsetComplete() const {return (requests.size() > 0);}
-    bool responsePending() const {return (responses.size() > 0);}
+    int responsesPending() const {return responses.size();}
 
 
     // Read data from socket and return read result

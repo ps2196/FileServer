@@ -38,9 +38,9 @@ class RequestParser
     //
     void parseRequest(Connection *conn)
     {
-        string res = intParseRequest(conn) + '\n';
-        if (res != "dupa\n")
-          conn->setResponse(res);
+      string res = intParseRequest(conn) + '\n';
+      if (res != "dupa\n")
+        conn->setResponse(res);
     }
 
     //

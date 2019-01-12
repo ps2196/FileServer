@@ -96,19 +96,23 @@ int main(int argc, char **argv)
                     printf("Ending connection\n");
                     connections[i].closeConnection();
                 }
-                else
-                {
-                    //printf("- %2d ->%s\n", msgsock, connections[i].getRequest().c_str());
-                    if(connections[i].isRequsetComplete())
-                    {
-                        parser.parseRequest(&connections[i]);
-                    }
-                    //sleep(1);
-                }
             }
-            if(connections[i].isWriteReady() && connections[i].responsePending())
+
+            if(connections[i].isRequsetComplete())
             {
-                connections[i].sendResponse();
+                parser.parseRequest(&connections[i]);
+            }
+
+            if(connections[i].isWriteReady())
+            {
+                //std::cout << "WRITE IS READY\n";
+                if (connections[i].responsesPending())
+                {
+                  std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
+                  connections[i].sendResponse();
+                  std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
+                }
+
             }
         }
 
@@ -121,4 +125,3 @@ int main(int argc, char **argv)
 
     exit(0);
 }
-
