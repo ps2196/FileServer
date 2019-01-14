@@ -202,12 +202,12 @@ class RequestParser
                 string err_msg;
 
                 string path = req["path"];
-                int result  = engine->deleteFile(path,err_msg);
+                int result  = engine->deleteFile(path, err_msg);
                 if(result < 0)
-                    return  generateResponse(409,cmd,err_msg);
+                    return  generateResponse(409, cmd, err_msg);
                 if(result == 0)
-                    return generateResponse(409,cmd,"Path not found");
-                return generateResponse(200,cmd,static_cast<string>(req["path"])+ " deleted");
+                    return generateResponse(409, cmd, "Path not found");
+                return generateResponse(200, cmd, path + " deleted");
             }
             else if (cmd == "CREATEUSER")
             {
@@ -266,23 +266,6 @@ class RequestParser
               }
               else
                 return RESPONSE_UNAUTHORIZED;
-            }
-            else if (cmd == "UPL")
-            {
-                string path_access = checkPathAuth(conn, req);
-                if (path_access != "")
-                    return path_access;
-                string path = req["path"];
-                auto upload = activeUploads.find(path);
-                // if(upload == activeUploads.end())
-                //     activeUploads.insert(std::make_pair<string,Connection*>(path,(Connection*)conn));
-                // else if(upload->second != conn)
-                //     return generateResponse(406, cmd, "There is an ongoing upload of "+path+" try again later.");
-                if(req["data"] == nullptr)
-                    return generateResponse(400, cmd, "Bad request");
-                string data = req["data"];
-                engine->handleUpload(path, data);
-                return generateResponse(200, "UPL", path +" uploaded sucessfully");
             }
             else if (cmd == "DWL")
             {

@@ -23,7 +23,7 @@ class AuthStrategy
     AuthStrategy(const string& user_file): user_file(user_file)
     {}
     AuthStrategy(const char* user_file): user_file(user_file)
-    {}*/
+    {}
 
     // Returns line from user file describing given user
     const string getUserLine(const string& username)

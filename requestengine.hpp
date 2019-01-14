@@ -287,26 +287,4 @@ public:
     }
   }
 };
-
-  //
-  // Decode data and append it to uploaded file
-  // Files are uploaded to servers tmp directory
-  // and moved to requested location when upload ends
-  //
-  void handleUpload(const string &path, string &data)
-  {
-    string decoded_data = base64_decode(data);
-    FS::path p(path);
-    FS::create_directories("uploads/" + p.remove_filename().string());
-    std::ofstream file;
-    file.open(p.filename().string(), std::ios::app);
-    file << decoded_data;
-    if (decoded_data[decoded_data.size() - 1] == EOF)
-    { //move file to requested location
-      FS::create_directories(p.remove_filename());
-      FS::copy_file("uploads/" + p.string(), p);
-      FS::remove("uploads/" + p.string());
-    }
-  }
-};
 #endif // REQENGINE_H
