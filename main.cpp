@@ -3,11 +3,19 @@
 #include "requestparser.h"
 #include "requestengine.hpp"
 #include <vector>
+#include <string>
+#include <iostream>
+#include <unordered_map>
 
-#define TRUE 1
+using string = std::string;
 
 #define DEFAULT_PORT 8888
-#define BACKLOG_SIZE 5 //maximum nuber of waiting connections, used in listen
+#define BACKLOG_SIZE 5 //maximum number of waiting connections, used in listen
+
+
+std::unordered_map<std::string, Connection*> activeUploads; // maps path to Connections witch uplad the file
+
+int parseCommandLineArgs(int argc, char **argv, int &port, string &data_root, string& auth_root);
 
 int main(int argc, char **argv)
 {
@@ -17,9 +25,12 @@ int main(int argc, char **argv)
     fd_set ready, write_ready;
     struct timeval to;
     int msgsock = -1, nfds, nactive;
-
-    AuthStrategy auth = AuthStrategy("auth/users.auth");
-    RequestEngine engine = RequestEngine("data/", "auth/");
+    
+    string data_root, auth_root;
+    int port;
+    parseCommandLineArgs(argc, argv,port, data_root, auth_root);
+    AuthStrategy auth = AuthStrategy(auth_root+"users.auth");
+    RequestEngine engine = RequestEngine(data_root, auth_root);
     RequestParser parser = RequestParser(&engine, &auth);
 
     std::vector<Connection> connections;
@@ -39,7 +50,7 @@ int main(int argc, char **argv)
 
     server.sin_family = AF_INET;
     server.sin_addr.s_addr = INADDR_ANY;
-    server.sin_port = htons(DEFAULT_PORT);
+    server.sin_port = htons(port);
     if (bind(sock, (struct sockaddr *)&server, sizeof server) == -1)
     {
         perror("binding stream socket");
@@ -60,11 +71,20 @@ int main(int argc, char **argv)
     {
         FD_ZERO(&ready); FD_ZERO(&write_ready);
         FD_SET(sock, &ready);
-        for (i = 0; i < connections.size(); i++) /* dodaj aktywne do zbioru */
+        for(auto c = connections.begin(); c != connections.end(); ++c)
         {
-            connections[i].setReadReady();
-            connections[i].setWriteReady();
+            if(c->getSocket() == -1)
+            { // Erase closed connection from connections vector
+                auto next = connections.erase(c);
+                if( next == connections.end())
+                    break; // erase returns iter to next element after erased
+                else
+                    c = next; 
+            }
+            c->setReadReady();
+            c->setWriteReady();
         }
+        
         to.tv_sec = 5;
         to.tv_usec = 0;
         if ((nactive = select(nfds, &ready, &write_ready, (fd_set *)0, &to)) == -1)
@@ -83,6 +103,7 @@ int main(int argc, char **argv)
             if (msgsock == -1)
                 perror("accept");
             nfds = std::max(nfds, msgsock + 1); /* brak sprawdzenia czy msgsock>MAX_FDS */
+<<<<<<< HEAD
 
             // set SO_KEEPALIVE opt
             /* Set the option active */
@@ -105,6 +126,10 @@ int main(int argc, char **argv)
             printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
 
             connections.push_back( Connection(msgsock, nullptr, &ready, &write_ready) );
+=======
+            std::cout<<"Creating new connection..\n"<<std::flush;
+            connections.push_back(Connection(msgsock, nullptr, &ready, &write_ready));
+>>>>>>> ps
             printf("accepted...(active connections = %d)\n", (int)connections.size());
         }
         for (i = 0; i < connections.size(); i++)
@@ -116,6 +141,7 @@ int main(int argc, char **argv)
                 {
                     printf("Ending connection\n");
                     connections[i].closeConnection();
+<<<<<<< HEAD
                     // TODO: usuwanie połaczenia z vectora
                     //connections.erase(connections.begin() + i);
                     //continue;
@@ -128,6 +154,19 @@ int main(int argc, char **argv)
             }
 
             if(connections[i].isWriteReady())
+=======
+                }
+                else
+                {
+                    //printf("- %2d ->%s\n", msgsock, connections[i].getRequest().c_str());
+                    if (connections[i].isRequsetComplete())
+                    {
+                        parser.parseRequest(&connections[i]);
+                    }
+                }
+            }
+            if (connections[i].isWriteReady() && connections[i].responsePending())
+>>>>>>> ps
             {
                 if (connections[i].responsesPending())
                 {
@@ -140,7 +179,7 @@ int main(int argc, char **argv)
         }
         //sleep(1);
 
-    } while (TRUE);
+    } while (true);
     /*
      * gniazdo sock nie zostanie nigdy zamkniete jawnie,
      * jednak wszystkie deskryptory zostana zamkniete gdy proces
@@ -149,3 +188,61 @@ int main(int argc, char **argv)
 
     exit(0);
 }
+<<<<<<< HEAD
+=======
+
+//
+// Parse command line arguments and set port and path to data and auth root
+// Return 0 on success
+int parseCommandLineArgs(int argc, char **argv, int &port, string &data_root, string &auth_root)
+{
+    port = DEFAULT_PORT;
+    data_root = "data/";
+    auth_root = "auth/";
+
+    if (argc < 3)
+        return 0; // setting any parameter requires at least 3 arguments
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i],"-p")==0)
+        {
+            if (i + 1 == argc)
+            {
+                perror("Too few arguments");
+                exit(-1);
+            }
+            port = atoi(argv[i + 1]);
+            if (port < 0 || port > 65536)
+            {
+                perror("Incorrect port numer");
+                exit(-1);
+            }
+            i++;
+            continue;
+        }
+        else if (strcmp(argv[i],"-d")==0 || strcmp(argv[i],"-data")==0)
+        {
+            if (i + 1 == argc)
+            {
+                perror("Too few arguments");
+                exit(-1);
+            }
+            data_root = argv[i+1];
+            i++;
+            continue;
+        }
+        else if (strcmp(argv[i], "-a")==0 || strcmp(argv[i],"-auth")==0)
+        {
+            if (i + 1 == argc)
+            {
+                perror("Too few arguments");
+                exit(-1);
+            }
+            auth_root = argv[i+1];
+            i++;
+            continue;
+        }
+        else { printf("Unrecognized option: %s\n",argv[i]);}
+    }
+}
+>>>>>>> ps

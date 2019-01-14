@@ -85,9 +85,42 @@ class Connection
         this->read_fdset = rfdset;
         this->write_fdset = wfdset;
     }
+
+    Connection(const Connection &other)
+    {   
+        user = nullptr;
+        *this = other;
+    }
+    
+    Connection& operator=(const Connection& other)
+    {
+        if(this != &other)
+        {
+            requests = other.requests;
+            responses = other.responses;
+            socket = other.socket;
+            
+            if(other.user != nullptr)
+            {   
+                if(user != nullptr)
+                    delete user;
+                user = new User(*(other.user));
+            }
+            else 
+                user = nullptr;
+            
+            read_fdset = other.read_fdset;
+            write_fdset = other.write_fdset;
+            recived_chars = other.recived_chars;
+        }
+        return *this;
+    }
+
+
     ~Connection()
     {
-        if (user)
+        std::cout<<"Connections destructor: "<<user<<std::endl<<std::flush;
+        if (user!=nullptr)
             delete user;
     }
 
@@ -218,7 +251,9 @@ class Connection
         if(socket > 0)
             close(socket);
         socket = -1 ;
-        user = nullptr;
+        if(user != nullptr){
+            user = nullptr;
+        }
         read_fdset = nullptr;
         write_fdset = nullptr;
         requests.clear();

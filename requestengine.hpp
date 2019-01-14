@@ -41,13 +41,13 @@ public:
     RequestEngine(const char* data_root, const char* auth_root, AuthStrategy *auth): data_root(data_root), auth_root(auth_root), auth(auth)
     {}
 
-    int createUser(const string &username, const string &password, const string &publicLimit, const string &privateLimit, string &publicUsed, string &privateUsed)
+    int createUser(const string &username, const string &password, const string &publicLimit, const string &privateLimit, const string& pubUsed = "0", const string privUsed = "0")
     {
       try
       {
         std::ofstream usersFile;
         usersFile.open(auth_root + "users.auth", std::ios::app);
-        usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":" + publicUsed + ":" + privateUsed + "\n";
+        usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":"+pubUsed+":"+privUsed+"\n";
         usersFile.close();
         return 0;
       }
@@ -133,6 +133,55 @@ public:
       }
     }
 
+<<<<<<< HEAD
+=======
+    string getUser(const string &username)
+    {
+      try
+      {
+        string userLine = auth->getUserLine(username);
+
+        if (userLine == "")
+          return "";
+
+        std::vector<string> user = splitWithDelimiter(userLine, ':');
+        string password = user[1];
+        string publicLimit = user[2];
+        string privateLimit = user[3];
+        string publicUsed = user[4];
+        string privateUsed = user[5];
+        User u(username, password, std::stoi(publicLimit), std::stoi(privateLimit), std::stof(publicUsed.c_str()), std::stof(privateUsed.c_str()));
+        return u.toJson(); 
+      }
+      catch (...)
+      {
+        return nullptr;
+      }
+    }
+
+    int sendFile(const string &path, string &fileChunk)
+    {
+      const int chunkSize = 30;  // TODO: zmienic to na jakis const
+      const int offset = 0;
+
+      // read chunk of file considering offset
+      std::ifstream file(path, std::ios::binary);
+      file.seekg(offset);
+      char *buffer = new char[chunkSize];
+      file.read(buffer, chunkSize);
+
+      // Encode buffer
+      unsigned char *bufferToEncode = reinterpret_cast<unsigned char*>(buffer);
+      fileChunk = base64_encode(bufferToEncode, chunkSize);
+
+      // 7. clean up
+      file.close();
+      delete[] buffer;
+
+      return 0;
+    }
+
+>>>>>>> ps
   int createFile(const string &path, const string &name, string &err_msg)
   {
     string p = data_root+path;
@@ -216,6 +265,7 @@ public:
       return -1;
     }
   }
+<<<<<<< HEAD
 
   User* findUser(const string &username)
   {
@@ -241,5 +291,28 @@ public:
     }
   }
 };
+=======
+>>>>>>> ps
 
+  //
+  // Decode data and append it to uploaded file
+  // Files are uploaded to servers tmp directory
+  // and moved to requested location when upload ends
+  //
+  void handleUpload(const string &path, string &data)
+  {
+    string decoded_data = base64_decode(data);
+    FS::path p(path);
+    FS::create_directories("uploads/" + p.remove_filename().string());
+    std::ofstream file;
+    file.open(p.filename().string(), std::ios::app);
+    file << decoded_data;
+    if (decoded_data[decoded_data.size() - 1] == EOF)
+    { //move file to requested location
+      FS::create_directories(p.remove_filename());
+      FS::copy_file("uploads/" + p.string(), p);
+      FS::remove("uploads/" + p.string());
+    }
+  }
+};
 #endif // REQENGINE_H
