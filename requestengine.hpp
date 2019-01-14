@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "utils/base64.h"
+#include "utils/base644.h"
 #include "auth_strategy/authstrategy.hpp"
 #include <boost/filesystem.hpp>
 

@@ -8,6 +8,7 @@
 #include <vector>
 #include <list>
 #include "utils/base64.h"
+#include "utils/base644.h"
 
 //using json = nlohmann::json;
 using string = std::string;
@@ -16,19 +17,46 @@ using namespace std;
 int main()
 {
 
-    std::ifstream file("onet.html", std::ios::binary);
+    std::ifstream file("outbin", std::ios::binary);
     std::ofstream fileOutput("output.html", std::ios::app | std::ios::binary);
+    string line;
+    string encoded = "";
+    string decoded = "";
 
-    char* line = new char[1024];
-    //unsigned char* line2 = new unsigned char[1024];
+    Base64 *base = Base64::getInstance();
+    //char *lineChar;
 
-    int length = (int) Base64encode_len(1024);
-    char* encoded = new char[length];
-    while (file.read(line, 1024))
+    //char *encodedChar;
+    //char *decodedChar;
+
+    while (std::getline(file, line))
     {
-      Base64encode(encoded, line, length);
-      std::cout << encoded;
+      decoded = base64_decode(line);
+      std::cout << decoded;
     }
+
+
+/*
+    int a;
+    while (std::getline(file, line))
+    {
+      /*
+      encoded = base64_encode(reinterpret_cast<const unsigned char*>(line.c_str()), line.length());
+      decoded = base64_decode(encoded);
+      fileOutput << decoded << std::endl;
+
+      encodedChar = new char[base->getEncodeLength(line.length())];
+      base->Encode(reinterpret_cast<const char*>(line.c_str()), line.length(), encodedChar);
+      decodedChar = new char[line.length()];
+      base->Decode(encodedChar, sizeof(encodedChar), decodedChar);
+
+      fileOutput << decodedChar << std::endl;
+      delete[] decodedChar;
+      delete[] encodedChar;
+
+    }
+
+*/
 
 
 

@@ -13,7 +13,7 @@
 #include <list>
 #include <vector>
 #include "auth_strategy/user.hpp"
-#include "utils/base64.h"
+#include "utils/base644.h"
 #include "utils/json.hpp"
 #include <iostream>
 #include <fstream>
