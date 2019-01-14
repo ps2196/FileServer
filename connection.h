@@ -19,6 +19,8 @@
 #include <fstream>
 //#include "downloadProcess.h"
 
+unsigned long long bytes = 0;
+
 class Connection;
 
 class downloadProcess
@@ -140,12 +142,24 @@ class Connection
         return rval;
     }
 
-    void sendResponse()
+    int sendResponse()
     {
         string& res = responses.front();
         //std::cout<<"["<<socket<<"]Sending response: "<<std::endl<<std::flush;//<<responses.front()<<std::endl<<std::flush;
-        int bytes_sent = send(socket,res.c_str(), res.size(),MSG_DONTWAIT);
-        //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+/*
+        int optval = 0;
+        socklen_t optlen_t = sizeof(optval);
+        if(getsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen_t) < 0) {
+          perror("getsockopt()");
+          close(socket);
+          exit(EXIT_FAILURE);
+        }
+        printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
+*/
+        int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT);
+        std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+        bytes += bytes_sent;
+
         //sleep(1);
         if(bytes_sent < res.size() && bytes_sent > 0) // erase sent fragment from response and keep it in the Q
             res.erase(0,bytes_sent);
@@ -154,20 +168,20 @@ class Connection
             responses.pop_front();
             handleDownloads();
         }
+
+        return bytes_sent;
     }
 
     void handleDownloads()
     {
       for (int i = 0; i < downloadProcesses.size(); i++)
       {
-        if (downloadProcesses[i] != nullptr)
+        if (downloadProcesses[i]->putNextPackage(1) == 0) // it was unable to put next package into the responses queue. Whole file was queued.
         {
-          if (downloadProcesses[i]->putNextPackage(1) == 0)
-          {
-            std::cout<<"DWL [" << downloadProcesses[i]->getPath() << "] ENDED\n";
-            delete downloadProcesses[i];
-            downloadProcesses[i] = nullptr;
-          }
+          //std::cout<<"DWL [" << downloadProcesses[i]->getPath() << "] ENDED\n" << "PENDING DOWNLOADS: " << downloadProcesses.size() << std::endl;
+          delete downloadProcesses[i];
+          downloadProcesses.erase(downloadProcesses.begin() + i);
+          //std::cout<<"PENDING DOWNLOADS AFTER POP: " << downloadProcesses.size() << std::endl;
         }
       }
     }
@@ -209,6 +223,8 @@ class Connection
         write_fdset = nullptr;
         requests.clear();
         responses.clear();
+
+        std::cout <<bytes<<std::endl;
     }
 };
 

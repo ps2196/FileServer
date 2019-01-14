@@ -83,6 +83,27 @@ int main(int argc, char **argv)
             if (msgsock == -1)
                 perror("accept");
             nfds = std::max(nfds, msgsock + 1); /* brak sprawdzenia czy msgsock>MAX_FDS */
+
+            // set SO_KEEPALIVE opt
+            /* Set the option active */
+            int optval = 1;
+            int optlen = sizeof(optval);
+            if(setsockopt(msgsock, SOL_SOCKET, SO_KEEPALIVE, &optval, optlen) < 0) {
+              perror("setsockopt()");
+              close(msgsock);
+              exit(EXIT_FAILURE);
+            }
+            printf("SO_KEEPALIVE set on socket\n");
+
+            socklen_t optlen_t = sizeof(optval);
+
+            if(getsockopt(msgsock, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen_t) < 0) {
+              perror("getsockopt()");
+              close(msgsock);
+              exit(EXIT_FAILURE);
+            }
+            printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
+
             connections.push_back( Connection(msgsock, nullptr, &ready, &write_ready) );
             printf("accepted...(active connections = %d)\n", (int)connections.size());
         }
@@ -95,6 +116,9 @@ int main(int argc, char **argv)
                 {
                     printf("Ending connection\n");
                     connections[i].closeConnection();
+                    // TODO: usuwanie połaczenia z vectora
+                    //connections.erase(connections.begin() + i);
+                    //continue;
                 }
             }
 
@@ -105,7 +129,6 @@ int main(int argc, char **argv)
 
             if(connections[i].isWriteReady())
             {
-                //std::cout << "WRITE IS READY\n";
                 if (connections[i].responsesPending())
                 {
                   //std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
@@ -115,6 +138,7 @@ int main(int argc, char **argv)
 
             }
         }
+        //sleep(1);
 
     } while (TRUE);
     /*
