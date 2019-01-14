@@ -1,20 +1,39 @@
-#include "utils/json.hpp"
+//#include "utils/json.hpp"
 #include <iostream>
 #include <string>
 #include <string.h>
-#include "auth_strategy/authstrategy.hpp"
-#include <boost/filesystem.hpp>
+//#include "auth_strategy/authstrategy.hpp"
+//#include <boost/filesystem.hpp>
 #include <fstream>
 #include <vector>
 #include <list>
+#include "utils/base64.h"
 
-using json = nlohmann::json;
+//using json = nlohmann::json;
 using string = std::string;
-namespace FS = boost::filesystem;
+//namespace FS = boost::filesystem;
 using namespace std;
 int main()
-{   
+{
 
+    std::ifstream file("onet.html", std::ios::binary);
+    std::ofstream fileOutput("output.html", std::ios::app | std::ios::binary);
+
+    char* line = new char[1024];
+    //unsigned char* line2 = new unsigned char[1024];
+
+    int length = (int) Base64encode_len(1024);
+    char* encoded = new char[length];
+    while (file.read(line, 1024))
+    {
+      Base64encode(encoded, line, length);
+      std::cout << encoded;
+    }
+
+
+
+
+/*
     list<string> l;
     string s1 = "Piotrek";
     l.push_back(s1);
@@ -22,18 +41,18 @@ int main()
     l.front().erase(0,3);
     cout<<"S1.2 = "<< l.front() <<endl;
     return 0;
-
+*/
     // std::ofstream f("/TINRepo/server/Hello.txt");
     // if(f.good())
     //     std::cout<< "OK\n";
     // else
     //     std::cout << "ups...\n";
     // return 0;
-    
+
     //FS::create_directories("./data/root");
     // try{
     // FS::create_directory("./data/scott/tmp");
-    
+
     // std::ofstream f("./data/scott/Hello.txt");
     // if(f.good())
     //     std::cout<< "OK\n";
@@ -44,7 +63,7 @@ int main()
     // {
     //     std::cout<<e.what()<<std::endl;
     // }
-    
+
 //    using namespace std;
 //    vector<string> v;
 //    v.push_back("vect1");
@@ -57,7 +76,7 @@ int main()
 //     a["AAA"] = "abc";
 //     a["vector"] =  v;
 
-//     cout<<a.dump(4)<<endl;   
+//     cout<<a.dump(4)<<endl;
 
     //  AuthStrategy auth = AuthStrategy("auth/users.auth");
     //  string u = "root";
@@ -65,9 +84,9 @@ int main()
     //  User* user = auth.auth(u, p);
     //  if(user != nullptr)
     //      std::cout << "OK\n";
-    //  else 
+    //  else
     //       std::cout<<"Auth fail!\n";
-    
+
     // json j;
     // j["dupa"] = "gruba";
     // j["twoj_stary"] = "pijany";
@@ -77,7 +96,7 @@ int main()
     // string a;
     // if(ja== nullptr)
     //     std::cout<<"ja\n";
-    // else 
+    // else
     //      a = static_cast<string>(ja);
     // std::cout<<"xx:\n"<<a<<std::endl;
 
@@ -89,9 +108,9 @@ int main()
     // catch(json::parse_error)
     // {
     //    std::cout<<"JSON parse error\n";
-    //    exit(-1);     
+    //    exit(-1);
     // }
-    
+
     // string s = "";
     // char buf[100];
     // strcpy(buf, "siurek");
