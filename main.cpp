@@ -25,7 +25,7 @@ int main(int argc, char **argv)
     fd_set ready, write_ready;
     struct timeval to;
     int msgsock = -1, nfds, nactive;
-    
+
     string data_root, auth_root;
     int port;
     parseCommandLineArgs(argc, argv,port, data_root, auth_root);
@@ -79,12 +79,12 @@ int main(int argc, char **argv)
                 if( next == connections.end())
                     break; // erase returns iter to next element after erased
                 else
-                    c = next; 
+                    c = next;
             }
             c->setReadReady();
             c->setWriteReady();
         }
-        
+
         to.tv_sec = 5;
         to.tv_usec = 0;
         if ((nactive = select(nfds, &ready, &write_ready, (fd_set *)0, &to)) == -1)
@@ -103,7 +103,6 @@ int main(int argc, char **argv)
             if (msgsock == -1)
                 perror("accept");
             nfds = std::max(nfds, msgsock + 1); /* brak sprawdzenia czy msgsock>MAX_FDS */
-<<<<<<< HEAD
 
             // set SO_KEEPALIVE opt
             /* Set the option active */
@@ -126,10 +125,6 @@ int main(int argc, char **argv)
             printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
 
             connections.push_back( Connection(msgsock, nullptr, &ready, &write_ready) );
-=======
-            std::cout<<"Creating new connection..\n"<<std::flush;
-            connections.push_back(Connection(msgsock, nullptr, &ready, &write_ready));
->>>>>>> ps
             printf("accepted...(active connections = %d)\n", (int)connections.size());
         }
         for (i = 0; i < connections.size(); i++)
@@ -141,7 +136,6 @@ int main(int argc, char **argv)
                 {
                     printf("Ending connection\n");
                     connections[i].closeConnection();
-<<<<<<< HEAD
                     // TODO: usuwanie połaczenia z vectora
                     //connections.erase(connections.begin() + i);
                     //continue;
@@ -154,19 +148,6 @@ int main(int argc, char **argv)
             }
 
             if(connections[i].isWriteReady())
-=======
-                }
-                else
-                {
-                    //printf("- %2d ->%s\n", msgsock, connections[i].getRequest().c_str());
-                    if (connections[i].isRequsetComplete())
-                    {
-                        parser.parseRequest(&connections[i]);
-                    }
-                }
-            }
-            if (connections[i].isWriteReady() && connections[i].responsePending())
->>>>>>> ps
             {
                 if (connections[i].responsesPending())
                 {
@@ -188,8 +169,6 @@ int main(int argc, char **argv)
 
     exit(0);
 }
-<<<<<<< HEAD
-=======
 
 //
 // Parse command line arguments and set port and path to data and auth root
@@ -245,4 +224,3 @@ int parseCommandLineArgs(int argc, char **argv, int &port, string &data_root, st
         else { printf("Unrecognized option: %s\n",argv[i]);}
     }
 }
->>>>>>> ps

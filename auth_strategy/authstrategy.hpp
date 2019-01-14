@@ -20,17 +20,8 @@ class AuthStrategy
     string user_file;
 
   public:
-<<<<<<< HEAD
-
-    AuthStrategy(const string& user_file)
-    {
-      this->user_file = user_file;
-    }
-      /*
-=======
     AuthStrategy(const string& user_file): user_file(user_file)
     {}
->>>>>>> ps
     AuthStrategy(const char* user_file): user_file(user_file)
     {}*/
 

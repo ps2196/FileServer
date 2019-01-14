@@ -3,21 +3,12 @@
 #include <stdio.h>
 #include <string>
 #include <string.h>
-<<<<<<< HEAD
-//#include "auth_strategy/authstrategy.hpp"
-=======
 #include "auth_strategy/authstrategy.hpp"
->>>>>>> ps
 //#include <boost/filesystem.hpp>
 #include <fstream>
 #include <vector>
 #include <list>
-<<<<<<< HEAD
-#include "utils/base64.h"
-#include "utils/base644.h"
-=======
 #include "utils/cppcodec/base64_rfc4648.hpp"
->>>>>>> ps
 
 //using json = nlohmann::json;
 using string = std::string;
@@ -31,13 +22,13 @@ void fencode(const string& sfile, const string& encfile)
     ofstream of(encfile, ios::out|ios::binary);
     char buf[900];
     char encbuf[2000];
-    
+
     cout<<"Encoding ..."<<endl;
     while( true )
     {
         f.read(buf, 900);
         int rval = f.gcount();
-        cout<<"Bytes read = "<< rval <<endl;    
+        cout<<"Bytes read = "<< rval <<endl;
         int enclen = base64::encode(encbuf, 2000, buf, rval);
         cout<<"Encoded len = "<< enclen<<endl;
         of.write(encbuf, enclen);
@@ -57,13 +48,13 @@ void fdecode(const string& encfile, const string& rfile)
     ofstream of(rfile, ios::out|ios::binary);
     char buf[1200];
     char decbuf[900];
-    
+
     cout<<"Encoding ..."<<endl;
     while( true )
     {
         f.read(buf, 1200);
         int rval = f.gcount();
-        cout<<"Bytes read = "<< rval <<endl;    
+        cout<<"Bytes read = "<< rval <<endl;
         int declen = base64::decode(decbuf, 900, buf, rval);
         cout<<"Encoded len = "<< declen<<endl;
         of.write(decbuf, declen);
@@ -75,63 +66,6 @@ void fdecode(const string& encfile, const string& rfile)
 }
 
 int main()
-<<<<<<< HEAD
-{
-
-    std::ifstream file("outbin", std::ios::binary);
-    std::ofstream fileOutput("output.html", std::ios::app | std::ios::binary);
-    string line;
-    string encoded = "";
-    string decoded = "";
-
-    Base64 *base = Base64::getInstance();
-    //char *lineChar;
-
-    //char *encodedChar;
-    //char *decodedChar;
-
-    while (std::getline(file, line))
-    {
-      decoded = base64_decode(line);
-      std::cout << decoded;
-    }
-
-
-/*
-    int a;
-    while (std::getline(file, line))
-    {
-      /*
-      encoded = base64_encode(reinterpret_cast<const unsigned char*>(line.c_str()), line.length());
-      decoded = base64_decode(encoded);
-      fileOutput << decoded << std::endl;
-
-      encodedChar = new char[base->getEncodeLength(line.length())];
-      base->Encode(reinterpret_cast<const char*>(line.c_str()), line.length(), encodedChar);
-      decodedChar = new char[line.length()];
-      base->Decode(encodedChar, sizeof(encodedChar), decodedChar);
-
-      fileOutput << decodedChar << std::endl;
-      delete[] decodedChar;
-      delete[] encodedChar;
-
-    }
-
-*/
-
-
-
-
-/*
-    list<string> l;
-    string s1 = "Piotrek";
-    l.push_back(s1);
-    cout<<"S1.1 = "<< l.front() <<endl;
-    l.front().erase(0,3);
-    cout<<"S1.2 = "<< l.front() <<endl;
-    return 0;
-*/
-=======
 {   
     using base64 = cppcodec::base64_rfc4648;
     // int enclen = base64::encode(encbuf, 3000, buf.c_str(), buf.size());
@@ -152,7 +86,6 @@ int main()
     // cout<<"S1.2 = "<< l.front() <<endl;
     // return 0;
 
->>>>>>> ps
     // std::ofstream f("/TINRepo/server/Hello.txt");
     // if(f.good())
     //     std::cout<< "OK\n";

@@ -133,8 +133,6 @@ public:
       }
     }
 
-<<<<<<< HEAD
-=======
     string getUser(const string &username)
     {
       try
@@ -151,7 +149,7 @@ public:
         string publicUsed = user[4];
         string privateUsed = user[5];
         User u(username, password, std::stoi(publicLimit), std::stoi(privateLimit), std::stof(publicUsed.c_str()), std::stof(privateUsed.c_str()));
-        return u.toJson(); 
+        return u.toJson();
       }
       catch (...)
       {
@@ -181,7 +179,6 @@ public:
       return 0;
     }
 
->>>>>>> ps
   int createFile(const string &path, const string &name, string &err_msg)
   {
     string p = data_root+path;
@@ -265,7 +262,6 @@ public:
       return -1;
     }
   }
-<<<<<<< HEAD
 
   User* findUser(const string &username)
   {
@@ -291,8 +287,6 @@ public:
     }
   }
 };
-=======
->>>>>>> ps
 
   //
   // Decode data and append it to uploaded file

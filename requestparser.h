@@ -125,11 +125,6 @@ class RequestParser
             string command = req["command"];
             string type = req["type"];
 
-<<<<<<< HEAD
-            //printf("%s %s\n", type.c_str(), command.c_str());
-
-=======
->>>>>>> ps
             if(req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
                 return RESPONSE_BAD_REQUEST;
 
@@ -143,9 +138,9 @@ class RequestParser
                 string username = req["username"];
                 string pass = req["password"];
                 User *user = auth->auth(username, pass);
-                if (user == nullptr)                
+                if (user == nullptr)
                     return RESPONSE_UNAUTHORIZED;
-                
+
                 else
                 { //Authorized
                     conn->setUser(user);
@@ -211,18 +206,6 @@ class RequestParser
                 if(result < 0)
                     return  generateResponse(409,cmd,err_msg);
                 if(result == 0)
-<<<<<<< HEAD
-                    return generateResponse(409, "Path not found");
-
-
-                return generateResponse(200, path + " deleted");
-            }
-            else if (cmd == "CREATEUSER")
-            {
-              User *user = conn->getUser();
-              if (user != nullptr && user->username == "root")
-              {
-=======
                     return generateResponse(409,cmd,"Path not found");
                 return generateResponse(200,cmd,static_cast<string>(req["path"])+ " deleted");
             }
@@ -231,7 +214,6 @@ class RequestParser
                 if (!checkAuth(conn, true)) // Check if connection has admin privilages
                     return RESPONSE_UNAUTHORIZED;
 
->>>>>>> ps
                 string username = req["username"];
                 string password = req["password"];
                 string publicLimit = req["public"];
@@ -239,12 +221,12 @@ class RequestParser
 
                 if (auth->getUserLine(username) != "")
                     return generateResponse(406, cmd, "Username is already used: " + username);
-              
+
                 if (engine->createUser(username, password, publicLimit, privateLimit) == 0)
                     return generateResponse(200, cmd, "User created: " + username);
-                else 
+                else
                     return generateResponse(409, cmd, "Something went wrong.");
-            
+
             }
             else if (cmd == "DELETEUSER")
             {
@@ -277,32 +259,10 @@ class RequestParser
               if (user != nullptr  && (user->username == "root" || user->username == req["username"]))
               {
                 string username = req["username"];
-<<<<<<< HEAD
-                std::cout << "requested username: " << username <<std::endl;
-
-                //auth->getUserLine(username);
-                User *userToReturn = engine->findUser(username);
-
-                if (userToReturn != nullptr)
-                {
-                  std::cout << "USER FOUND\n";
-                  response["code"] = 200; //ok
-                  response["data"] = userToReturn->toJson();
-                  delete user;
-                }
-                else
-                {
-                  std::cout << "USER NOT FOUND\n";
-                  response["code"] = 404; // not found
-                  response["data"] = "User not found.";
-                }
-                return response.dump();
-=======
                 string userJSON = engine->getUser(username);
                 if(userJSON == "")
                     return generateResponse(404, cmd, "User not found.");
                 return generateResponse(200, cmd, userJSON);
->>>>>>> ps
               }
               else
                 return RESPONSE_UNAUTHORIZED;
@@ -350,57 +310,6 @@ class RequestParser
               else
                 return RESPONSE_UNAUTHORIZED;
             }
-<<<<<<< HEAD
-=======
-            else if (cmd == "GETFILE")
-            {
-              std::ifstream file("fotka.jpg", std::ios::binary);
-              file.seekg(0, file.end);
-              int length = file.tellg();
-              file.seekg(0, file.beg);
-
-              char *buffer = new char[length];
-              file.read(buffer, length);
-
-
-              //std::cout << buffer << std::endl;
-              unsigned char *toEncode = reinterpret_cast<unsigned char*>(buffer);
-              //std::cout << toEncode << std::endl;
-
-
-              string encoded = base64_encode(toEncode, length);
-
-              std::cout << "Size toEncode: " << length << " After encoding: " << encoded.size() << std::endl;
-
-              //std::cout << encoded << std::endl;
-
-              string decoded = base64_decode(encoded);
-              //std::cout << decoded << std::endl;
-
-              std::ofstream output("output", std::ios::binary);
-              output << decoded;
-
-              json fileJson;
-              fileJson["name"] = "fotka.jpg";
-              fileJson["path"] = "/server";
-              //fileJson["data"] = encoded;
-
-              json response;
-              response["type"] = "RESPONSE";
-              response["command"] = cmd;
-              response["code"] = 200; //ok
-              //response["data"] = fileJson;
-
-                return response.dump();
-
-              //return RESPONSE_BAD_REQUEST;
-
-            }
-            else
-            {
-                return RESPONSE_BAD_REQUEST;// Unrecognized command
-            }
->>>>>>> ps
         }
         catch (json::parse_error)
         {
