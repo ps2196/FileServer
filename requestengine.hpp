@@ -107,8 +107,8 @@ public:
           return -1;
 
         // save used spaces
-        string pubUsed = std::to_string(user->publicLimit);
-        string privUsed = std::to_string(user->privateLimit);
+        string pubUsed = std::to_string(user->publicUsed);
+        string privUsed = std::to_string(user->privateUsed);
 
         // delete old user
         if (deleteUser(username) != 0)
