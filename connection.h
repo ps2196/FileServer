@@ -29,7 +29,6 @@ private:
   using string = std::string;
   string path; // file path
   unsigned long long offset; // current file offset
-  std::ifstream file; // file to be sent
   const int CHUNK_SIZE = 1024; // size of data chunk of file
   Connection *connection; // connection which triggered download process
   using json = nlohmann::json;
@@ -269,12 +268,10 @@ downloadProcess::downloadProcess(string &path, Connection *conn)
   this->path = path;
   this->connection = conn;
   offset = 0; // initial offset is 0, start reading at beginning
-  file.open(path, std::ios::binary);
 }
 
 downloadProcess::~downloadProcess()
 {
-  file.close();
   connection = nullptr;
 }
 
@@ -316,7 +313,7 @@ int downloadProcess::putOneChunk()
   response["path"] = path;
   response["data"] = encodedChunk;
 
-  // appned json wrapper
+  // appened json wrapper
   string responseString = response.dump()+"\n";
   connection->setResponse(responseString);
 
@@ -326,12 +323,15 @@ int downloadProcess::putOneChunk()
   return 0;
 }
 
-char* downloadProcess::getDataChunk(int &sizeOfChunk)
+char* downloadProcess::getDataChunk(int &readDataSize)
 {
+  std::ifstream file; // file to be sent
+  file.open(path, std::ios::binary);
+
   file.seekg(offset);
   char *buffer = new char[CHUNK_SIZE];
   file.read(buffer, CHUNK_SIZE);
-  sizeOfChunk = file.gcount();
+  readDataSize = file.gcount();
 
   if (file.gcount() == 0) // end of file
   {
@@ -339,6 +339,8 @@ char* downloadProcess::getDataChunk(int &sizeOfChunk)
     delete[] buffer;
     return nullptr;
   }
+
+  file.close();
   return buffer;
 }
 
