@@ -345,7 +345,7 @@ int downloadProcess::putOneChunk()
   json response;
   response["type"] = "RESPONSE";
   response["command"] = "DWL";
-  response["code"] = 200; // ok
+  response["code"] = 206; // partial data
   response["path"] = path;
   response["data"] = encodedChunk;
 
@@ -374,6 +374,17 @@ char* downloadProcess::getDataChunk(int &readDataSize)
     file.close();
     delete[] buffer;
     std::cout << "DWL PROCESS " << path << " ENDED\n";
+
+    json response;
+    response["type"] = "RESPONSE";
+    response["command"] = "DWL";
+    response["code"] = 200;
+    response["path"] = path;
+    response["data"] = "Entire file was sent.";
+
+    string responseString = response.dump()+"\n";
+    connection->setResponse(responseString);
+
     return nullptr;
   }
 
