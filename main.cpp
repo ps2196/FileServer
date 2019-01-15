@@ -46,6 +46,14 @@ int main(int argc, char **argv)
     }
     nfds = sock + 1;
 
+    // zgub denerwuja ̨cy komunikat bł ̨edu "Address already in use"
+    int yes = 1;
+    if (setsockopt(sock,SOL_SOCKET,SO_REUSEADDR,&yes,sizeof(int)) == -1)
+    {
+        perror("setsockopt");
+        exit(1);
+      }
+
     /* dowiaz adres do gniazda */
 
     server.sin_family = AF_INET;
