@@ -270,28 +270,40 @@ class RequestParser
             else if (cmd == "DWL")
             {
               // 1. Check if authorized
-              User *user = conn->getUser();
-              if (true)//(user != nullptr  && (user->username == "root" || user->username == req["username"]))
-              {
-                // 2. Get details form request
-                string path = req["path"];
+              if (!checkAuth(conn, false)) // Check if connection has admin privilages
+                  return RESPONSE_UNAUTHORIZED;
 
-                // 3. check if user has access to the requested file
-                // todo
+              // 2. Get details form request
+              string path = req["path"];
 
-                // Create download process and push to the conn.activeDownloads list
-                downloadProcess *dwlProc = new downloadProcess(path, conn);
-                conn->pushDownloadProcess(dwlProc);
+              // 3. check if user has access to the requested file
+              // todo
 
-                // Push first package of data
-                dwlProc->putNextPackage(5);
+              // Create download process and push to the conn.activeDownloads list
+              downloadProcess *dwlProc = new downloadProcess(path, conn);
+              conn->pushDownloadProcess(dwlProc);
 
-                std::cout << "DWL [" << path << "] RESPONSE\n";
+              // Push first package of data
+              dwlProc->putNextPackage(5);
 
-                return "";
-              }
+              std::cout << "DWL [" << path << "] RESPONSE\n";
+              return ""; // empty string because there were repsponses pushed already
+            }
+            else if (cmd == "DWLABORT")
+            {
+              std::cout << "ABORCJA\n";
+              // 1. Check if authorized
+              if (!checkAuth(conn, false)) // Check if connection has admin privilages
+                  return RESPONSE_UNAUTHORIZED;
+
+              // 2. Get details form request
+              string path = req["path"];
+
+              // 3. Delete downloadProcess
+              if (conn->abortDownloadProcess(path))
+                return generateResponse(200, cmd, path);
               else
-                return RESPONSE_UNAUTHORIZED;
+                return generateResponse(409, cmd, path);
             }
         }
         catch (json::parse_error)

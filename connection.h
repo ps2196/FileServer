@@ -189,7 +189,7 @@ class Connection
         printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
 */
         int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT);
-        std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+        //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
         bytes += bytes_sent;
 
         //sleep(1);
@@ -260,6 +260,42 @@ class Connection
 
         std::cout <<bytes<<std::endl;
     }
+
+    /**
+    * Returns true when download process with given path was aborted successfully. Otherwise false.
+    */
+    bool abortDownloadProcess(string path)
+    {
+      downloadProcess *dwlProc = nullptr;
+      for (int i = 0; i < downloadProcesses.size(); i++)
+      {
+        if (downloadProcesses[i]->getPath() == path)
+        {
+          // found downloadProcess
+          dwlProc = downloadProcesses[i];
+          downloadProcesses.erase(downloadProcesses.begin() + i);
+          delete dwlProc;
+          std::cout << "DWL " << path << " ABORTED. PENDING DOWNLOADS: " << downloadProcesses.size() << std::endl;
+          return true;
+        }
+      }
+      return false;
+    }
+/*
+    downloadProcess* getDownloadProcess(string &path)
+    {
+      downloadProcess *dwlProc = nullptr;
+      for (int i = 0; i < downloadProcesses.size(); i++)
+      {
+        if (downloadProcesses[i]->getPath() == path)
+        {
+          dwlProc = downloadProcesses[i];
+          break;
+        }
+      }
+      return dwlProc;
+    }
+    */
 };
 
 
@@ -337,6 +373,7 @@ char* downloadProcess::getDataChunk(int &readDataSize)
   {
     file.close();
     delete[] buffer;
+    std::cout << "DWL PROCESS " << path << " ENDED\n";
     return nullptr;
   }
 
