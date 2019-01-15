@@ -43,7 +43,7 @@ public:
 
   int putOneChunk();
 
-  char* getDataChunk();
+  char* getDataChunk(int &);
 
   string getPath() const {return path;}
 
@@ -87,11 +87,11 @@ class Connection
     }
 
     Connection(const Connection &other)
-    {   
+    {
         user = nullptr;
         *this = other;
     }
-    
+
     Connection& operator=(const Connection& other)
     {
         if(this != &other)
@@ -99,16 +99,16 @@ class Connection
             requests = other.requests;
             responses = other.responses;
             socket = other.socket;
-            
+
             if(other.user != nullptr)
-            {   
+            {
                 if(user != nullptr)
                     delete user;
                 user = new User(*(other.user));
             }
-            else 
+            else
                 user = nullptr;
-            
+
             read_fdset = other.read_fdset;
             write_fdset = other.write_fdset;
             recived_chars = other.recived_chars;
@@ -297,7 +297,8 @@ int downloadProcess::putNextPackage(int packageSize)
 int downloadProcess::putOneChunk()
 {
   // get chunk of file
-  char *binaryChunk = getDataChunk();
+  int sizeOfChunk;
+  char *binaryChunk = getDataChunk(sizeOfChunk);
   offset += CHUNK_SIZE;
 
   if (binaryChunk == nullptr) // end of file
@@ -305,7 +306,7 @@ int downloadProcess::putOneChunk()
 
   // encode with base64
   unsigned char *chunkToEncode = reinterpret_cast<unsigned char*>(binaryChunk);
-  string encodedChunk = base64_encode(chunkToEncode, CHUNK_SIZE);
+  string encodedChunk = base64_encode(chunkToEncode, sizeOfChunk);
 
   // prepare json wrapper for chunk = response
   json response;
@@ -325,11 +326,12 @@ int downloadProcess::putOneChunk()
   return 0;
 }
 
-char* downloadProcess::getDataChunk()
+char* downloadProcess::getDataChunk(int &sizeOfChunk)
 {
   file.seekg(offset);
   char *buffer = new char[CHUNK_SIZE];
   file.read(buffer, CHUNK_SIZE);
+  sizeOfChunk = file.gcount();
 
   if (file.gcount() == 0) // end of file
   {
