@@ -275,12 +275,17 @@ class RequestParser
 
               // 2. Get details form request
               string path = req["path"];
+              string priority = req["priority"];
+              int priorityInt = std::atoi(priority.c_str());
+
+              if (priorityInt > 10 || priorityInt < 1)
+                return RESPONSE_BAD_REQUEST;
 
               // 3. check if user has access to the requested file
               // todo
 
               // Create download process and push to the conn.activeDownloads list
-              downloadProcess *dwlProc = new downloadProcess(path, conn);
+              DownloadProcess *dwlProc = new DownloadProcess(path, conn, priorityInt);
               conn->pushDownloadProcess(dwlProc);
 
               // Push first package of data
@@ -291,7 +296,6 @@ class RequestParser
             }
             else if (cmd == "DWLABORT")
             {
-              std::cout << "ABORCJA\n";
               // 1. Check if authorized
               if (!checkAuth(conn, false)) // Check if connection has admin privilages
                   return RESPONSE_UNAUTHORIZED;
@@ -301,6 +305,26 @@ class RequestParser
 
               // 3. Delete downloadProcess
               if (conn->abortDownloadProcess(path))
+                return generateResponse(200, cmd, path);
+              else
+                return generateResponse(409, cmd, path);
+            }
+            else if (cmd == "DWLPRI")
+            {
+              // 1. Check if authorized
+              if (!checkAuth(conn, false)) // Check if connection has admin privilages
+                  return RESPONSE_UNAUTHORIZED;
+
+              // 2. Get details form request
+              string path = req["path"];
+              string priority = req["priority"];
+              int priorityInt = std::atoi(priority.c_str());
+
+              if (priorityInt > 10 || priorityInt < 1)
+                return RESPONSE_BAD_REQUEST;
+
+              // 3. Alter downloadProcess priority
+              if (conn->changeDownloadPriority(path, priorityInt))
                 return generateResponse(200, cmd, path);
               else
                 return generateResponse(409, cmd, path);

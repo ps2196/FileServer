@@ -45,6 +45,7 @@ public:
     {
       try
       {
+        // TODO: tworzyc katalogi dla nich
         std::ofstream usersFile;
         usersFile.open(auth_root + "users.auth", std::ios::app);
         usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":"+pubUsed+":"+privUsed+"\n";

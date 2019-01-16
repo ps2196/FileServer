@@ -23,7 +23,7 @@ unsigned long long bytes = 0;
 
 class Connection;
 
-class downloadProcess
+class DownloadProcess
 {
 private:
   using string = std::string;
@@ -32,11 +32,12 @@ private:
   const int CHUNK_SIZE = 1024; // size of data chunk of file
   Connection *connection; // connection which triggered download process
   using json = nlohmann::json;
+  int priority; // integer in 1 to 10 describing file priority, where 10 is the highest
 
 public:
-  downloadProcess(string &path, Connection *conn);
+  DownloadProcess(string &path, Connection *conn, int priority);
 
-  ~downloadProcess();
+  ~DownloadProcess();
 
   int putNextPackage(int packageSize);
 
@@ -45,6 +46,10 @@ public:
   char* getDataChunk(int &);
 
   string getPath() const {return path;}
+
+  int getPriority() const {return priority;}
+
+  void setPriority(int priority) {this->priority = priority;}
 
 };
 
@@ -66,7 +71,7 @@ class Connection
     std::vector<char> recived_chars; // container for storing text read from socket until whole request is recived
     std::list<string> requests; // incoming reques are queued in connection
     std::list<string> responses; // responses are queued waiting to be sent
-    std::vector<downloadProcess*> downloadProcesses;
+    std::vector<DownloadProcess*> downloadProcesses;
 
   public:
     Connection(): requests(),responses(), recived_chars()
@@ -208,7 +213,7 @@ class Connection
     {
       for (int i = 0; i < downloadProcesses.size(); i++)
       {
-        if (downloadProcesses[i]->putNextPackage(1) == 0) // it was unable to put next package into the responses queue. Whole file was queued.
+        if (downloadProcesses[i]->putNextPackage(downloadProcesses[i]->getPriority()) == 0) // it was unable to put next package into the responses queue. Whole file was queued.
         {
           //std::cout<<"DWL [" << downloadProcesses[i]->getPath() << "] ENDED\n" << "PENDING DOWNLOADS: " << downloadProcesses.size() << std::endl;
           delete downloadProcesses[i];
@@ -218,7 +223,7 @@ class Connection
       }
     }
 
-    void pushDownloadProcess(downloadProcess *actvDwnl)
+    void pushDownloadProcess(DownloadProcess *actvDwnl)
     {
       downloadProcesses.push_back(actvDwnl);
     }
@@ -264,9 +269,9 @@ class Connection
     /**
     * Returns true when download process with given path was aborted successfully. Otherwise false.
     */
-    bool abortDownloadProcess(string path)
+    bool abortDownloadProcess(string &path)
     {
-      downloadProcess *dwlProc = nullptr;
+      DownloadProcess *dwlProc = nullptr;
       for (int i = 0; i < downloadProcesses.size(); i++)
       {
         if (downloadProcesses[i]->getPath() == path)
@@ -276,6 +281,21 @@ class Connection
           downloadProcesses.erase(downloadProcesses.begin() + i);
           delete dwlProc;
           std::cout << "DWL " << path << " ABORTED. PENDING DOWNLOADS: " << downloadProcesses.size() << std::endl;
+          return true;
+        }
+      }
+      return false;
+    }
+
+    bool changeDownloadPriority(string &path, int priority)
+    {
+      DownloadProcess *dwlProc = nullptr;
+      for (int i = 0; i < downloadProcesses.size(); i++)
+      {
+        if (downloadProcesses[i]->getPath() == path)
+        {
+          downloadProcesses[i]->setPriority(priority);
+          std::cout << "DWL " << path << " ALTER PRIORITY: " << priority << std::endl;
           return true;
         }
       }
@@ -299,14 +319,15 @@ class Connection
 };
 
 
-downloadProcess::downloadProcess(string &path, Connection *conn)
+DownloadProcess::DownloadProcess(string &path, Connection *conn, int priority)
 {
   this->path = path;
   this->connection = conn;
   offset = 0; // initial offset is 0, start reading at beginning
+  this->priority = priority;
 }
 
-downloadProcess::~downloadProcess()
+DownloadProcess::~DownloadProcess()
 {
   connection = nullptr;
 }
@@ -317,8 +338,9 @@ downloadProcess::~downloadProcess()
 * Returns 0 when whole file was sent and there is no need to put next packages. Object can be destroyed.
 * Returns 1 when there are still chunks to be sent.
 */
-int downloadProcess::putNextPackage(int packageSize)
+int DownloadProcess::putNextPackage(int packageSize)
 {
+  std::cout << "PUTTING NEXT PACKAGE: " << path << " " << packageSize << std::endl;
   for (int i = 0; i < packageSize; i++)
   {
     if (putOneChunk() == -1) // last chunk of file appneded
@@ -327,7 +349,7 @@ int downloadProcess::putNextPackage(int packageSize)
   return 1;
 }
 
-int downloadProcess::putOneChunk()
+int DownloadProcess::putOneChunk()
 {
   // get chunk of file
   int sizeOfChunk;
@@ -359,7 +381,7 @@ int downloadProcess::putOneChunk()
   return 0;
 }
 
-char* downloadProcess::getDataChunk(int &readDataSize)
+char* DownloadProcess::getDataChunk(int &readDataSize)
 {
   std::ifstream file; // file to be sent
   file.open(path, std::ios::binary);
