@@ -99,7 +99,29 @@ class RequestParser
 
         string spath = req["path"];
         if(spath == "")
-            return PATH_AUTH_NO_PATH;
+          return PATH_AUTH_NO_PATH;
+
+        if (spath.length() > 256) // Linux path lenght limit is 255
+          return PATH_AUTH_NO_PATH;
+
+        // spath = username/public....
+        string username, directory;
+
+        // 1. get username
+        username = spath.substr(0, spath.find('/'));
+
+        // 2. get directory
+        spath.erase(0, spath.find('/') + 1);
+        int indexOfSlash = spath.find('/');
+        if (indexOfSlash != 0)
+          directory = spath.substr(0, indexOfSlash);
+        else
+          directory = spath.substr(0, spath.length());
+
+        if (username == conn->getUser()->username || directory == "public")
+          return PATH_AUTH_OK;
+
+/*
         std::vector<char> cv;
         char cc=spath[0];
         while(cc != '/' && cc != '\0' && cv.size() < 256) // Linux path lenght limit is 255
@@ -110,7 +132,7 @@ class RequestParser
         string path_user(cv.begin(), cv.end());
         if(path_user == user->username)
             return PATH_AUTH_OK;
-
+*/
         return PATH_AUTH_NOAUTH;
     }
 
