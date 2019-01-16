@@ -45,11 +45,29 @@ public:
     {
       try
       {
-        // TODO: tworzyc katalogi dla nich
         std::ofstream usersFile;
         usersFile.open(auth_root + "users.auth", std::ios::app);
         usersFile << username + ":" + password + ":" + publicLimit + ":" + privateLimit + ":"+pubUsed+":"+privUsed+"\n";
         usersFile.close();
+
+        // Make directory
+        string err;
+        if (createDirectory("", username, err) == -1)
+        {
+          std::cout << err << std::endl;
+          return -1;
+        }
+        if (createDirectory(username, "public", err) == -1)
+        {
+          std::cout << err << std::endl;
+          return -1;
+        }
+        if (createDirectory(username, "private", err) == -1)
+        {
+          std::cout << err << std::endl;
+          return -1;
+        }
+
         return 0;
       }
       catch (...)
@@ -90,6 +108,14 @@ public:
 
         usersFile.close();
         newUsersFile.close();
+
+        // delete directory
+        string err;
+        if (deleteFile(username, err) == -1)
+        {
+          std::cout << err << std::endl;
+          return -1;
+        }
         return 0;
       }
       catch (...)
