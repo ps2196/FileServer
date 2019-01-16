@@ -277,23 +277,23 @@ class RequestParser
             }
             else if (cmd == "USER")
             {
-              User *user = conn->getUser();
-              if (user != nullptr  && (user->username == "root" || user->username == req["username"]))
-              {
-                string username = req["username"];
-                string userJSON = engine->getUser(username);
-                if(userJSON == "")
-                    return generateResponse(404, cmd, "User not found.");
-                return generateResponse(200, cmd, userJSON);
-              }
-              else
-                return RESPONSE_UNAUTHORIZED;
+              if (!checkAuth(conn, true)) // Check if connection has admin privileges
+                  return RESPONSE_UNAUTHORIZED;
+
+              string username = req["username"];
+              string userJSON = engine->getUser(username);
+
+              if(userJSON == "")
+                return generateResponse(404, cmd, "User not found.");
+
+              return generateResponse(200, cmd, userJSON);
             }
             else if (cmd == "DWL")
             {
-              // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privileges
-                  return RESPONSE_UNAUTHORIZED;
+              // 1. Check permissons
+              string path_access = checkPathAuth(conn, req);
+              if (path_access != "")
+                  return path_access;
 
               // 2. Get details form request
               string path = req["path"];
@@ -303,11 +303,9 @@ class RequestParser
               if (priorityInt > 10 || priorityInt < 1)
                 return RESPONSE_BAD_REQUEST;
 
-              // 3. check if user has access to the requested file
-              // todo
-
               // Create download process and push to the conn.activeDownloads list
-              DownloadProcess *dwlProc = new DownloadProcess(path, conn, priorityInt);
+              string path2 = engine->getDataRoot() + path;
+              DownloadProcess *dwlProc = new DownloadProcess(path2, conn, priorityInt);
               conn->pushDownloadProcess(dwlProc);
 
               // Push first package of data
@@ -318,9 +316,10 @@ class RequestParser
             }
             else if (cmd == "DWLABORT")
             {
-              // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privileges
-                  return RESPONSE_UNAUTHORIZED;
+              // 1. Check permissons
+              string path_access = checkPathAuth(conn, req);
+              if (path_access != "")
+                  return path_access;
 
               // 2. Get details form request
               string path = req["path"];
@@ -333,9 +332,10 @@ class RequestParser
             }
             else if (cmd == "DWLPRI")
             {
-              // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privileges
-                  return RESPONSE_UNAUTHORIZED;
+              // 1. Check permissons
+              string path_access = checkPathAuth(conn, req);
+              if (path_access != "")
+                  return path_access;
 
               // 2. Get details form request
               string path = req["path"];
@@ -376,9 +376,10 @@ class RequestParser
             }
             else if (cmd == "UPLFIN")
             {
-              // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privileges
-                  return RESPONSE_UNAUTHORIZED;
+              // 1. Check permissons
+              string path_access = checkPathAuth(conn, req);
+              if (path_access != "")
+                  return path_access;
 
               // 2. Get details form request
               string path = req["path"];

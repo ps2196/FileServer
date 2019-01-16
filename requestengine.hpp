@@ -31,7 +31,8 @@ public:
   {
   }
 
-  public:
+  string getDataRoot() const {return data_root;}
+
     RequestEngine(string& data_root, string& auth_root, AuthStrategy *auth)
     {
         this->data_root = data_root;
