@@ -185,13 +185,35 @@ public:
       }
     }
 
-    bool uploadFile(string &name, string &path, string &dataEncoded)
+    bool uploadFile(string &name, string path, string &dataEncoded)
     {
       try
       {
-        // Decode and save
+        // Decode
         string decoded = base64_decode(dataEncoded);
-        std::ofstream file(path + "temp_" + name, std::ios::binary | std::ios::app);
+
+        // Parse path
+        string myPath = path;
+        string directory;
+        string username = myPath.substr(0, path.find('/'));
+        myPath.erase(0, path.find('/') + 1);
+        int indexOfSlash = myPath.find('/');
+        if (indexOfSlash != 0)
+          directory = myPath.substr(0, indexOfSlash);
+        else
+          directory = myPath.substr(0, myPath.length());
+
+        // Check space
+        /*
+        User *user = findUser(username);
+        if (directory == "public")
+        {
+          if (user->publicUsed + )
+        }*/
+
+        // Save
+        std::cout << "PATH UPL: " << data_root << "/" << path << "/temp_" << name << std::endl;
+        std::ofstream file(data_root + "/" + path + "/temp_" + name, std::ios::binary | std::ios::app);
         file << decoded;
         file.close();
         return true;
@@ -208,7 +230,10 @@ public:
       // rename file
       try
       {
-        FS::rename(path + "temp_" + name, path + name);
+        std::cout << "engine FIN OLDNAME: " << data_root << path << "/temp_" << name << std::endl;
+        std::cout << "engine FIN NEW NAME: " << data_root << path << "/" << name << std::endl;
+
+        FS::rename(data_root + path + "/temp_" + name, data_root + path + "/" + name);
         return true;
       }
       catch (...)

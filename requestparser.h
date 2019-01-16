@@ -353,17 +353,15 @@ class RequestParser
             }
             else if (cmd == "UPL")
             {
-              // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privileges
-                  return RESPONSE_UNAUTHORIZED;
+              // 1. Check permissons
+              string path_access = checkPathAuth(conn, req);
+              if (path_access != "")
+                  return path_access;
 
               // 2. Get details form request
               string path = req["path"];
               string name = req["name"];
               string data = req["data"];
-
-              // 2. Check if user has access to the directory
-              // TODO
 
               // 3. Check if file already exists
               // TODO
@@ -385,9 +383,9 @@ class RequestParser
               string path = req["path"];
               string name = req["name"];
               if (engine->finishUpload(path, name))
-                return generateResponse(200, cmd, path + name);
+                return generateResponse(200, cmd, path + "/" + name);
               else
-                return generateResponse(409, cmd, path + name);
+                return generateResponse(409, cmd, path + "/" + name);
 
             }
         }
