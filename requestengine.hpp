@@ -158,6 +158,38 @@ public:
       }
     }
 
+    bool uploadFile(string &name, string &path, string &dataEncoded)
+    {
+      try
+      {
+        // Decode and save
+        string decoded = base64_decode(dataEncoded);
+        std::ofstream file(path + "temp_" + name, std::ios::binary | std::ios::app);
+        file << decoded;
+        file.close();
+        return true;
+      }
+      catch (...)
+      {
+        return false;
+      }
+
+    }
+
+    bool finishUpload(string &path, string &name)
+    {
+      // rename file
+      try
+      {
+        FS::rename(path + "temp_" + name, path + name);
+        return true;
+      }
+      catch (...)
+      {
+        return false;
+      }
+    }
+/*
     int sendFile(const string &path, string &fileChunk)
     {
       const int chunkSize = 30;  // TODO: zmienic to na jakis const
@@ -179,7 +211,7 @@ public:
 
       return 0;
     }
-
+*/
   int createFile(const string &path, const string &name, string &err_msg)
   {
     string p = data_root+path;

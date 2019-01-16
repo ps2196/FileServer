@@ -211,7 +211,7 @@ class RequestParser
             }
             else if (cmd == "CREATEUSER")
             {
-                if (!checkAuth(conn, true)) // Check if connection has admin privilages
+                if (!checkAuth(conn, true)) // Check if connection has admin privileges
                     return RESPONSE_UNAUTHORIZED;
 
                 string username = req["username"];
@@ -230,7 +230,7 @@ class RequestParser
             }
             else if (cmd == "DELETEUSER")
             {
-                if (!checkAuth(conn, true)) // Check if connection has admin privilages
+                if (!checkAuth(conn, true)) // Check if connection has admin privileges
                     return RESPONSE_UNAUTHORIZED;
                 // TODO: wylogowac go najpierw
                 string username = req["username"];
@@ -240,7 +240,7 @@ class RequestParser
             }
             else if (cmd == "CHUSER")
             {
-                if (!checkAuth(conn, true)) // Check if connection has admin privilages
+                if (!checkAuth(conn, true)) // Check if connection has admin privileges
                     return RESPONSE_UNAUTHORIZED;
 
                 string username = req["username"];
@@ -270,7 +270,7 @@ class RequestParser
             else if (cmd == "DWL")
             {
               // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privilages
+              if (!checkAuth(conn, false)) // Check if connection has admin privileges
                   return RESPONSE_UNAUTHORIZED;
 
               // 2. Get details form request
@@ -297,7 +297,7 @@ class RequestParser
             else if (cmd == "DWLABORT")
             {
               // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privilages
+              if (!checkAuth(conn, false)) // Check if connection has admin privileges
                   return RESPONSE_UNAUTHORIZED;
 
               // 2. Get details form request
@@ -312,7 +312,7 @@ class RequestParser
             else if (cmd == "DWLPRI")
             {
               // 1. Check if authorized
-              if (!checkAuth(conn, false)) // Check if connection has admin privilages
+              if (!checkAuth(conn, false)) // Check if connection has admin privileges
                   return RESPONSE_UNAUTHORIZED;
 
               // 2. Get details form request
@@ -328,6 +328,44 @@ class RequestParser
                 return generateResponse(200, cmd, path);
               else
                 return generateResponse(409, cmd, path);
+            }
+            else if (cmd == "UPL")
+            {
+              // 1. Check if authorized
+              if (!checkAuth(conn, false)) // Check if connection has admin privileges
+                  return RESPONSE_UNAUTHORIZED;
+
+              // 2. Get details form request
+              string path = req["path"];
+              string name = req["name"];
+              string data = req["data"];
+
+              // 2. Check if user has access to the directory
+              // TODO
+
+              // 3. Check if file already exists
+              // TODO
+
+
+              if (engine->uploadFile(name, path, data))
+                return "";
+              else
+                return RESPONSE_SERVER_ERROR;
+            }
+            else if (cmd == "UPLFIN")
+            {
+              // 1. Check if authorized
+              if (!checkAuth(conn, false)) // Check if connection has admin privileges
+                  return RESPONSE_UNAUTHORIZED;
+
+              // 2. Get details form request
+              string path = req["path"];
+              string name = req["name"];
+              if (engine->finishUpload(path, name))
+                return generateResponse(200, cmd, path + name);
+              else
+                return generateResponse(409, cmd, path + name);
+
             }
         }
         catch (json::parse_error)
