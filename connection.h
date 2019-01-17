@@ -155,6 +155,11 @@ class Connection
     {   int rval=0;
        // memset(buf, 0, sizeof buf);
        // req_complete = false;
+        if(socket < 0 )
+        {
+            closeConnection();
+            return 0;
+        }
         if ((rval = read(socket, buf, READ_SIZE)) == -1)
             perror("reading stream message");
         else if (rval > 0)
@@ -193,8 +198,18 @@ class Connection
         }
         printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
 */
+        if(socket < 0 )
+        {
+            closeConnection();
+            return 0;
+        }
         int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT);
-        //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+        if( (bytes_sent < 0) && (errno & ECONNRESET))
+        {
+            closeConnection();
+            return -1;
+        }
+        std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
         bytes += bytes_sent;
 
         //sleep(1);
