@@ -126,6 +126,11 @@ class Connection
         std::cout<<"Connections destructor: "<<user<<std::endl<<std::flush;
         if (user!=nullptr)
             delete user;
+
+        for (int i = 0; i < downloadProcesses.size(); i++)
+        {
+          delete downloadProcesses[i];
+        }
     }
 
     User* getUser() const {return user;}
@@ -193,7 +198,7 @@ class Connection
         }
         printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
 */
-        int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT);
+        int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT | MSG_NOSIGNAL);
         //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
         bytes += bytes_sent;
 
@@ -226,6 +231,7 @@ class Connection
     void pushDownloadProcess(DownloadProcess *actvDwnl)
     {
       downloadProcesses.push_back(actvDwnl);
+      std::cout << "ADDED NEW DWL PROC. NOW SIZE IS: " <<downloadProcesses.size() << std::endl;
     }
 
     // Return true if read from socket won't block
@@ -319,7 +325,7 @@ class Connection
 };
 
 
-DownloadProcess::DownloadProcess(string &path, Connection *conn, int priority)
+DownloadProcess::DownloadProcess(string &path, Connection *conn, int priority = 1)
 {
   this->path = path;
   this->connection = conn;
@@ -340,7 +346,7 @@ DownloadProcess::~DownloadProcess()
 */
 int DownloadProcess::putNextPackage(int packageSize)
 {
-  std::cout << "PUTTING NEXT PACKAGE: " << path << " " << packageSize << std::endl;
+  //std::cout << "PUTTING NEXT PACKAGE: " << path << " " << packageSize << std::endl;
   for (int i = 0; i < packageSize; i++)
   {
     if (putOneChunk() == -1) // last chunk of file appneded
@@ -381,6 +387,8 @@ int DownloadProcess::putOneChunk()
   return 0;
 }
 
+
+
 char* DownloadProcess::getDataChunk(int &readDataSize)
 {
   std::ifstream file; // file to be sent
@@ -391,11 +399,13 @@ char* DownloadProcess::getDataChunk(int &readDataSize)
   file.read(buffer, CHUNK_SIZE);
   readDataSize = file.gcount();
 
+  bytes += readDataSize;
+
   if (file.gcount() == 0) // end of file
   {
     file.close();
     delete[] buffer;
-    std::cout << "DWL PROCESS " << path << " ENDED\n";
+    std::cout << "DWL PROCESS " << path << " ENDED. SENT BYTES: " << bytes << std::endl;
 
     json response;
     response["type"] = "RESPONSE";

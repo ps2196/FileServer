@@ -212,8 +212,8 @@ public:
         }*/
 
         // Save
-        std::cout << "PATH UPL: " << data_root << "/" << path << "/temp_" << name << std::endl;
-        std::ofstream file(data_root + "/" + path + "/temp_" + name, std::ios::binary | std::ios::app);
+        std::cout << "PATH UPL: " << data_root << path << "/temp_" << name << std::endl;
+        std::ofstream file(data_root + "/" + path + "/" + name, std::ios::binary | std::ios::app);
         file << decoded;
         file.close();
         return true;
@@ -230,8 +230,8 @@ public:
       // rename file
       try
       {
-        std::cout << "engine FIN OLDNAME: " << data_root << path << "/temp_" << name << std::endl;
-        std::cout << "engine FIN NEW NAME: " << data_root << path << "/" << name << std::endl;
+        //std::cout << "engine FIN OLDNAME: " << data_root << path << "/temp_" << name << std::endl;
+        //std::cout << "engine FIN NEW NAME: " << data_root << path << "/" << name << std::endl;
 
         FS::rename(data_root + path + "/temp_" + name, data_root + path + "/" + name);
         return true;
@@ -325,6 +325,7 @@ public:
       else
       {
         err_msg = path + " does not exist.";
+        return -1;
       }
     }
     catch (const FS::filesystem_error &ex)
@@ -370,6 +371,7 @@ public:
         return new User(username, pass, std::stoi(pubLimit), std::stoi(privLimit), std::stof(pubUsed.c_str()), std::stof(privUsed.c_str()));
       }
     }
+    return nullptr;
   }
 };
 #endif // REQENGINE_H

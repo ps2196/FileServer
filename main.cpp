@@ -137,6 +137,7 @@ int main(int argc, char **argv)
         }
         for (i = 0; i < connections.size(); i++)
         {
+          //std::cout << "NOW CONN = " << connections.size() << std::endl;
             if (connections[i].isReadReady())
             {
                 rval = connections[i].reciveMsg();
@@ -188,7 +189,7 @@ int parseCommandLineArgs(int argc, char **argv, int &port, string &data_root, st
     auth_root = "auth/";
 
     if (argc < 3)
-        return 0; // setting any parameter requires at least 3 arguments
+        return -1; // setting any parameter requires at least 3 arguments
     for (int i = 1; i < argc; ++i)
     {
         if (strcmp(argv[i],"-p")==0)
@@ -231,4 +232,5 @@ int parseCommandLineArgs(int argc, char **argv, int &port, string &data_root, st
         }
         else { printf("Unrecognized option: %s\n",argv[i]);}
     }
+    return 0;
 }

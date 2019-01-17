@@ -121,18 +121,6 @@ class RequestParser
         if (username == conn->getUser()->username || directory == "public")
           return PATH_AUTH_OK;
 
-/*
-        std::vector<char> cv;
-        char cc=spath[0];
-        while(cc != '/' && cc != '\0' && cv.size() < 256) // Linux path lenght limit is 255
-        {
-            cv.push_back(cc);
-            cc = spath[cv.size()];
-        }
-        string path_user(cv.begin(), cv.end());
-        if(path_user == user->username)
-            return PATH_AUTH_OK;
-*/
         return PATH_AUTH_NOAUTH;
     }
 
@@ -397,6 +385,7 @@ class RequestParser
         {
             return RESPONSE_SERVER_ERROR;
         }
+        return "";
     }
 
 
