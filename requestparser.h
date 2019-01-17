@@ -101,9 +101,6 @@ class RequestParser
         if(spath == "")
           return PATH_AUTH_NO_PATH;
 
-        if (spath.length() > 256) // Linux path lenght limit is 255
-          return PATH_AUTH_NO_PATH;
-
         // spath = username/public....
         string username, directory;
 

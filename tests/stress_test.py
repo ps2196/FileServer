@@ -1,12 +1,13 @@
 import client as cl
 import threading
 
-ADDR = 'localhost'
+#ADDR = 'localhost'
+ADDR = '168.63.56.27' #Azure
 PORT = 8888
 USER = 'root'
 PASS = 'root'
 DWL_FILENAME = 'foto.jpg'
-CLIENTS = 10 # number of clients to run
+CLIENTS = 20 # number of clients to run
 
 
 
