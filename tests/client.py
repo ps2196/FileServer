@@ -3,6 +3,12 @@ import sys
 import json # for request/response parsing
 import base64 # for file decoding
 
+REQERROR = -1
+DWLFIN = 0
+AUTH_OK = 1
+DWL = 2
+NORES = 3
+print("ASDASDADASDA")
 class Client:
     def __init__(self, addr = 'localhost', port = 8888, id = 0):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -52,13 +58,13 @@ class Client:
         """ Pop response from response_q and digest it"""
         self.recive_msg()
         if len(self.response_q) == 0:
-            return 3
+            return NORES
         res_str = self.response_q.pop(0) # pop oldest response from Q
         print('Digest: ', res_str);
         res = json.loads(res_str) 
         if res.get('code') is not None and res['code'] <200 and res['code'] >= 300:
-            print("Server res: ", res_str)
-            return -1
+            #print("Server res: ", res_str)
+            return REQERROR
         if res.get('command') is not None:
             if res['command'] == 'DWL':
                 encoded_chunk = res['data']
@@ -66,34 +72,15 @@ class Client:
                 f=open('dwl/'+self.dwl_fname, 'ab')
                 f.write(bytearray(decoded_chunk))
                 f.close()
-                return 2
-            elif res['command'] == 'DWLFIN':
-                return 0
+                print("RES code: ", res['code'])
+                if res['code'] == 200:
+                    print(DWLFIN)
+                    return DWLFIN
+                return DWL
             elif res['command'] == 'AUTH':
-                return 1
+                return AUTH_OK
         return 0
             
-
-# #test
-# ADDR = 'localhost'
-# PORT = 8888
-# USER = 'root'
-# PASS = 'root'
-# DWL_FILENAME = 'obrazek.jpg'
-
-# cli = Client(ADDR, PORT, 1)
-# cli.login(USER, PASS)
-# if cli.digest_response() != 1: #'AUTH OK'
-#     print("Login failed for cli: ", cli.id)
-#     exit(-1)
-# else: #set user for cli
-#     cli.username = USER;   
-
-# cli.send_dwl_req(USER+'/public/'+DWL_FILENAME, 5)
-# while cli.digest_response()>0: #DWLFIN
-#     print("chunk recived")
-# exit(0)
-
             
 
 
