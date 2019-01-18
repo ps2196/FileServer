@@ -145,9 +145,6 @@ int main(int argc, char **argv)
                 {
                     printf("Ending connection\n");
                     connections[i].closeConnection();
-                    // TODO: usuwanie połaczenia z vectora
-                    //connections.erase(connections.begin() + i);
-                    //continue;
                 }
             }
 
@@ -160,9 +157,7 @@ int main(int argc, char **argv)
             {
                 if (connections[i].responsesPending())
                 {
-                  //std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
                   connections[i].sendResponse();
-                  //std::cout << "PENDING RESPONSES: " << connections[i].responsesPending() << std::endl;
                 }
 
             }

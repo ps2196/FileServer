@@ -123,7 +123,6 @@ class Connection
 
     ~Connection()
     {
-        std::cout<<"Connections destructor: "<<user<<std::endl<<std::flush;
         if (user!=nullptr)
             delete user;
 
@@ -187,22 +186,9 @@ class Connection
     int sendResponse()
     {
         string& res = responses.front();
-        //std::cout<<"["<<socket<<"]Sending response: "<<std::endl<<std::flush;//<<responses.front()<<std::endl<<std::flush;
-/*
-        int optval = 0;
-        socklen_t optlen_t = sizeof(optval);
-        if(getsockopt(socket, SOL_SOCKET, SO_KEEPALIVE, &optval, &optlen_t) < 0) {
-          perror("getsockopt()");
-          close(socket);
-          exit(EXIT_FAILURE);
-        }
-        printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
-*/
-        int bytes_sent = send(socket, res.c_str(), res.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
-        //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
+        int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT | MSG_NOSIGNAL);
         bytes += bytes_sent;
 
-        //sleep(1);
         if(bytes_sent < res.size() && bytes_sent > 0) // erase sent fragment from response and keep it in the Q
             res.erase(0,bytes_sent);
         else // Whole response was sent - pop it from Q
