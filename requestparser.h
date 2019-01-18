@@ -135,6 +135,8 @@ class RequestParser
             string command = req["command"];
             string type = req["type"];
 
+            std::cout << "NEW REQUEST: " << command << std::endl;
+
             if(req["type"] != nullptr && req["type"] != "REQUEST") //Bad request
                 return RESPONSE_BAD_REQUEST;
 
@@ -269,12 +271,20 @@ class RequestParser
                   return RESPONSE_UNAUTHORIZED;
 
               string username = req["username"];
-              string userJSON = engine->getUser(username);
+              User *user = engine->findUser(username);
 
-              if(userJSON == "")
+              std::cout << "USER\n";
+              if(user == nullptr)
                 return generateResponse(404, cmd, "User not found.");
 
-              return generateResponse(200, cmd, userJSON);
+              json userJSON = user->toJson();
+              delete user;
+              json res_json;
+              res_json["type"] = "RESPONSE";
+              res_json["command"] = cmd;
+              res_json["code"] = 200;
+              res_json["data"] = userJSON;
+              return res_json.dump();
             }
             else if (cmd == "DWL")
             {
@@ -374,7 +384,6 @@ class RequestParser
                 return generateResponse(200, cmd, path + "/" + name);
               else
                 return generateResponse(409, cmd, path + "/" + name);
-
             }
         }
         catch (json::parse_error)

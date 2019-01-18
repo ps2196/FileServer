@@ -231,14 +231,14 @@ public:
       try
       {
         //std::cout << "engine FIN OLDNAME: " << data_root << path << "/temp_" << name << std::endl;
-        //std::cout << "engine FIN NEW NAME: " << data_root << path << "/" << name << std::endl;
-
         FS::rename(data_root + path + "/temp_" + name, data_root + path + "/" + name);
+        //std::cout << "engine FIN NEW NAME: " << data_root << path << "/" << name << std::endl;
         return true;
       }
-      catch (...)
+      catch (const FS::filesystem_error &ex)
       {
-        return false;
+        std::cout << ex.what();
+        return true;
       }
     }
 /*
@@ -288,9 +288,21 @@ public:
 
   int createDirectory(const string &path, const string &name, string &err_msg)
   {
+    string p;
+    if (path == "")
+      p = data_root + name;
+    else
+      p = data_root + path + "/" + name;
+
+    if (FS::exists(p))
+    {
+      err_msg = p + " already exists.";
+      return -1;
+    }
+
     try
     {
-      FS::create_directory(data_root + path + "/" + name);
+      FS::create_directory(p);
     }
     catch (const FS::filesystem_error &ex)
     {
@@ -306,27 +318,26 @@ public:
   int listDirectory(const string &path, std::vector<string> &files, std::vector<string> &dirs, string &err_msg)
   {
     string p = data_root+path;
+
+    if (!FS::exists(p))
+    {
+      err_msg = path + " does not exist.";
+      return -1;
+    }
+
     try
     {
-      if (FS::exists(p))
+      if (FS::is_directory(p))
       {
-        if (FS::is_directory(p))
+        for (FS::directory_entry &i : FS::directory_iterator(p))
         {
-          for (FS::directory_entry &i : FS::directory_iterator(p))
-          {
-            if (FS::is_directory(i.path()))
-              dirs.push_back(i.path().filename().string());
-            else
-              files.push_back(i.path().filename().string());
-          }
+          if (FS::is_directory(i.path()))
+            dirs.push_back(i.path().filename().string());
+          else
+            files.push_back(i.path().filename().string());
         }
-        return 0;
       }
-      else
-      {
-        err_msg = path + " does not exist.";
-        return -1;
-      }
+      return 0;
     }
     catch (const FS::filesystem_error &ex)
     {

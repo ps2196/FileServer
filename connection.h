@@ -176,7 +176,7 @@ class Connection
                 else
                 {//'\0' means that wohle request has been recived - push it in the Q and reset recived_chars
                     requests.push_back(string(recived_chars.begin(), recived_chars.end()));
-                    std::cout<<"["<<socket<<"]NEW Request:"<<requests.back()<<std::endl<<std::flush;
+                    //std::cout<<"["<<socket<<"]NEW Request:"<<requests.back()<<std::endl<<std::flush;
                     recived_chars.clear();
                 }
             }
@@ -198,7 +198,7 @@ class Connection
         }
         printf("SO_KEEPALIVE is %s\n", (optval ? "ON" : "OFF"));
 */
-        int bytes_sent = send(socket, res.c_str(), res.size(),MSG_DONTWAIT | MSG_NOSIGNAL);
+        int bytes_sent = send(socket, res.c_str(), res.size(), MSG_DONTWAIT | MSG_NOSIGNAL);
         //std::cout<<"["<<socket<<"]Bytes sent: " << bytes_sent<<std::endl<<std::flush;
         bytes += bytes_sent;
 
@@ -278,9 +278,12 @@ class Connection
     bool abortDownloadProcess(string &path)
     {
       DownloadProcess *dwlProc = nullptr;
+      //std::cout << "PATH TO ABORT: " << path << std::endl;
       for (int i = 0; i < downloadProcesses.size(); i++)
       {
-        if (downloadProcesses[i]->getPath() == path)
+        string currentPath = downloadProcesses[i]->getPath().substr(5, downloadProcesses[i]->getPath().size());
+        //std::cout << "CURR PATH: " << currentPath << std::endl;
+        if (currentPath == path)
         {
           // found downloadProcess
           dwlProc = downloadProcesses[i];
@@ -374,7 +377,7 @@ int DownloadProcess::putOneChunk()
   response["type"] = "RESPONSE";
   response["command"] = "DWL";
   response["code"] = 206; // partial data
-  response["path"] = path;
+  response["path"] = path.substr(5, path.size()); // cut data/ at the beginning
   response["data"] = encodedChunk;
 
   // appened json wrapper
@@ -411,7 +414,7 @@ char* DownloadProcess::getDataChunk(int &readDataSize)
     response["type"] = "RESPONSE";
     response["command"] = "DWL";
     response["code"] = 200;
-    response["path"] = path;
+    response["path"] = path.substr(5, path.size()); // cut data/ at the beginning
     response["data"] = "Entire file was sent.";
 
     string responseString = response.dump()+"\n";

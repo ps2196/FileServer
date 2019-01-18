@@ -1,12 +1,12 @@
 import client as cl
 import threading
 
-ADDR = 'localhost'
+ADDR = '168.63.56.27'
 PORT = 8888
 USER = 'root'
 PASS = 'root'
-DWL_FILENAME = 'foto.jpg'
-CLIENTS = 10 # number of clients to run
+DWL_FILENAME = 'fot1.JPG'
+CLIENTS = 50 # number of clients to run
 
 
 
@@ -19,14 +19,14 @@ CLIENTS = 10 # number of clients to run
 #         exit(-1)
 #     else: #set user for cli
 #         clients.append(cli)
-#         cli.username = USER;   
+#         cli.username = USER;
 #     cli.send_dwl_req(USER+'/public/'+DWL_FILENAME, 5)
-   
 
-# for cli in clients: 
-#     res_code = cli.digest_response() 
+
+# for cli in clients:
+#     res_code = cli.digest_response()
 #     while res_code not in [cl.DWLFIN, cl.REQERROR]: #DWLFIN
-#         res_code = cli.digest_response() 
+#         res_code = cli.digest_response()
 #     print('Download finished! ( cli.id = ',cli.id,')')
 
 
@@ -36,12 +36,12 @@ def start_client(cli_id):
     if cli.digest_response() != cl.AUTH_OK: #'AUTH OK'
         print("Login failed for cli: ", cli.id)
     else: #set user for cli
-        cli.username = USER;   
+        cli.username = USER;
 
     cli.send_dwl_req(USER+'/public/'+DWL_FILENAME, 5)
-    res_code = cli.digest_response() 
+    res_code = cli.digest_response()
     while res_code not in [cl.DWLFIN, cl.REQERROR]: #DWLFIN
-        res_code = cli.digest_response() 
+        res_code = cli.digest_response()
     print('Download finished! ( cli.id = ',cli.id,')')
 
 # # Run client threads
