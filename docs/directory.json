@@ -1,0 +1,91 @@
+[
+  {
+    "type": "folder",
+    "name": "root",
+    "path": "/root",
+    "children": [
+      {
+        "type": "folder",
+        "name": "jpawlak",
+        "path": "/root/jpawlak",
+        "children": [
+          {
+            "type": "folder",
+            "name": "public",
+            "path": "/root/jpawlak/public",
+            "children": [
+              {
+                "type": "file",
+                "name": "publicFile1.txt",
+                "path": "/root/jpawlak/public/publicFile1.txt"
+              },
+              {
+                "type": "file",
+                "name": "publicFile2.txt",
+                "path": "/root/jpawlak/public/publicFile2.txt"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "private",
+            "path": "/root/jpawlak/private",
+            "children": [
+              {
+                "type": "file",
+                "name": "privateFile1.txt",
+                "path": "/root/jpawlak/private/privateFile1.txt"
+              },
+              {
+                "type": "file",
+                "name": "privateFile2.txt",
+                "path": "/root/jpawlak/private/privateFile2.txt"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "folder",
+        "name": "lbinkiew",
+        "path": "/root/lbinkiew",
+        "children": [
+          {
+            "type": "folder",
+            "name": "public",
+            "path": "/root/lbinkiew/public",
+            "children": [
+              {
+                "type": "file",
+                "name": "publicFile1.txt",
+                "path": "/root/lbinkiew/public/publicFile1.txt"
+              },
+              {
+                "type": "file",
+                "name": "publicFile2.txt",
+                "path": "/root/lbinkiew/public/publicFile2.txt"
+              }
+            ]
+          },
+          {
+            "type": "folder",
+            "name": "private",
+            "path": "/root/lbinkiew/private",
+            "children": [
+              {
+                "type": "file",
+                "name": "privateFile1.txt",
+                "path": "/root/lbinkiew/private/privateFile1.txt"
+              },
+              {
+                "type": "file",
+                "name": "privateFile2.txt",
+                "path": "/root/lbinkiew/private/privateFile2.txt"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "username": "jpawlak",
+    "password": "jpawlak",
+    "public": 15,
+    "private": 15,
+    "publicUsed": 10,
+    "privateUsed": 5,
+  },
+  {
+    "username": "lbinkiew",
+    "password": "lbinkiew",
+    "public": 15,
+    "private": 15,
+    "publicUsed": 10,
+    "privateUsed": 5,
+  }
+]

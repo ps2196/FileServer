@@ -1,0 +1,178 @@
+/*
+	COMMANDS:
+
+* +AUTH - logowanie
+* +LS - list catalog
+* +TOUCH - nowy plik
+* +RM - usun plik / katalog
+* +MKDIR - utwórz katalog
+* DWL - pobierz plik
+* +DWLPRI - zmień priorytet pobierania pliku
+* +DWLABORT - anuluj pobieranie pliku
+* UPL - prześlij plik
+* UPLFIN - potwierdzenie od klienta ze wyslano caly plik
+* - QUOTA - wyświetlenie dostępnej przestrzeni (PUBLIC + PRIVATE)
+* - CHQUOTA - zmień przestrzeń dyskową (PUBLIC + PRIVATE)
+* +CREATEUSER - utwórz użytkownika
+* +DELETEUSER - usuń użytkownika
+* LOGOUT - wyloguj użytkownika
+* -CHFNAME - zmiana nazwy pliku
+* CHUSER - zmiana uzytkownika (password, public, private) o danym username
+* USER - pobranie użytkownika (username, password, private, public, privateUsed, publicUsed)
+* STARTUP - włączenie usługi
+* SHUTDOWN - wyłączenie usługi
+* - KEEPALIVE
+*/
+
+
+// UWAGA scieżki bez '/' na koncu - jak wam wygodniej z '/' to piszcie
+
+/*
+* REQUESTS
+*/
+
+{
+	"type" : "REQUEST",
+	"command" : "AUTH",
+	"username" : "",
+	"password" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "LS",
+	"path" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "TOUCH",
+	"name" : "",		// nazwa pliku
+	"path" : ""			// katalog
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "RM",
+	"path" : ""				// sciezka do pliku/katalogu
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "CHFNAME",
+	"name" : "",			// nazwa pliku
+	"path" : ""				// sciezka
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "CHPASS",
+	"username" : "",
+	"password" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "MKDIR",
+	"name" : "",			// nazwa folderu
+	"path" : ""				// sciezka
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "DWL",
+	"path" : "",				// sciezka
+	"priority": // liczba od 1 do 10, 10 = najwyższy priorytet pliku
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "DWLPRI",
+	"path" : "",				// sciezka
+	"priority": // liczba od 1 do 10, 10 = najwyższy priorytet pliku
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "DWLABORT",
+	"path" : ""				// sciezka
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "UPL",
+	"name" : "",			// nazwa pliku
+	"path" : "",				// sciezka, bez nazwy pliku
+	"data" : // porcja pliku w base64
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "UPLFIN",
+	"name" : "",			// nazwa pliku
+	"path" : "",				// sciezka, bez nazwy pliku
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "QUOTA",
+	"username" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "CHQUOTA",
+	"username" : "",
+	"public" : "",
+	"private" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "CREATEUSER",
+	"username" : "",
+	"password" : "",
+	"public" : "",
+	"private" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "DELETEUSER",
+	"username" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "LOGOUT",
+	"username" : ""
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "STARTUP"
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "SHUTDOWN"
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "KEEPALIVE"
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "USERS"
+}
+
+{
+	"type" : "REQUEST",
+	"command" : "CHUSER",
+	"username" : "",
+	"password" : "",
+	"public" : "",
+	"private" : ""
+}

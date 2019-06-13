@@ -1,0 +1,75 @@
+/*
+	COMMANDS:
+
+* AUTH - logowanie
+* LS - list catalog
+* TOUCH - nowy plik
+* RM - usun plik / katalog
+* MKDIR - utwórz katalog
+* DWL - pobierz plik
+* UPL - prześlij plik
+* QUOTA - wyświetlenie dostępnej przestrzeni (PUBLIC + PRIVATE)
+* CHQUOTA - zmień przestrzeń dyskową (PUBLIC + PRIVATE)
+* CREATEUSER - utwórz użytkownika
+* DELETEUSER - usuń użytkownika
+* LOGOUT - wyloguj użytkownika
+* CHFNAME - zmiana nazwy pliku
+* CHPASS - zmiana hasla uzytkownika
+* STARTUP - włączenie usługi
+* SHUTDOWN - wyłączenie usługi
+* KEEPALIVE
+*/
+
+/*
+* RESPONSES
+*/
+
+{
+	"type" : "RESPONSE",
+	"command": "", // command z Requesta
+	"code" : "",
+	"data" : ""
+}
+
+//Response na LS
+{
+	"type" : "RESPONSE",
+	"code" : "",
+	"command": "",
+  "path": "",
+	"files" : [],
+  "dirs" : []
+}
+
+// RESPONSE na DWL
+{
+	"type" : "RESPONSE",
+	"command": "DWL",
+	"code" : "", // 206 jesli przesyla fragment pliku, 200 jako potwierdzenie wyslania calego pliku
+	"path": "",
+	"data":	// binarny wycinek pliku lub tekst jesli code == 200
+}
+
+// RESPONSE na DWLABORT
+{
+	"type" : "RESPONSE",
+	"command": "DWLABORT",
+	"code" : "200", // jesli 200 to ok, jesli 409 to nie udalo sie zatrzymac, prawdowpodobnie zly path lub pobieranie juz sie skonczylo
+	"data" : path
+}
+
+// RESPONSE na DWLPRI
+{
+	"type" : "RESPONSE",
+	"command" : "DWLPRI",
+	"code" : // 200 jesli ok, 409 jesi nie udalo sie
+	"data" : "" // path
+}
+
+// RESPONSE na UPLFIN
+{
+	"type" : "RESPONSE",
+	"command" : "UPLFIN",
+	"code" : // 200 jesli ok, 409 jesi nie udalo sie
+	"data" : "" // path
+}
